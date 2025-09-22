@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GCEF - Admin Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../style/login.css">
+</head>
+<body>
+  <div class="mainbg"></div>
+    <div class="logo">
+        <img src="../assets/gclogo.png" alt="GC Logo 1" class="GClogo">
+      <img src="../assets/gcef.jpg" alt="GC Logo 2" class="GClogo">
+    </div>
+  <div class="login-container">
+    
+    <div class="login-screen" id="loginScreen">
+      <div class="login-header">
+        <div class="login-graphic">
+          <img src="../assets/llogin.png" alt="Login Logo" class="loginlogo">
+        </div>
+      </div>
+      <div class="login-form-container">
+        <h1 class="student-login-title">ADMIN LOGIN</h1>
+        <form id="admin-LoginForm">
+          <div class="form-group">
+            <label class="form-label">EMAIL</label>
+            <div class="email-input-group">
+              <input type="text" class="form-input" id="idInput" placeholder="ID Number" required maxlength="9" pattern="\d{9}" inputmode="numeric">
+              <span class="email-domain">@gordoncollege.edu.ph</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">PASSWORD</label>
+            <div class="password-container">
+              <input type="password" class="form-input" id="passwordInput" required maxlength="25" pattern="[A-Za-z0-9]{1,25}">
+              <div class="password-toggle" onclick="togglePassword()">
+                <i id="eyeIcon" class="fa-solid fa-eye"></i>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="login-button">LOGIN</button>
+        </form>
+      </div>
+    </div>
+      <footer>
+    <p>&copy; 2025 UIX. Version 1.0.0</p>
+  </footer>
+  </div>
+
+    <script type="module" src="../backend/admin/alogin.js"></script>
+
+
+</body>
+</html>

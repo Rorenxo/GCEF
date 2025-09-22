@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Event Management</title>
+  <link rel="stylesheet" href="../style/amain.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.css" rel="stylesheet">
+
+</head>
+<body>
+  <div class="container">
+    <nav class="sidebar"> 
+      <div class="sidebar-header">
+        <img src="../assets/gcef1.png" alt="GCEC Logo" class="sidebar-logo">
+        <h2>GCEC</h2>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item active">
+          <a href="amain.html" class="nav-link"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link"><i class="fas fa-calendar-plus"></i> <span>Manage Events</span></a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link"><i class="fas fa-user-cog"></i> <span>Profile Settings</span></a>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <a class="nav-link logout" id="logoutBtn" href="#">
+          <i class="fas fa-sign-out-alt"></i><span>Log out</span>
+        </a>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <img src="../assets/gclogo.png" alt="GCEC Logo" class="header-logo">
+            <div class="header-text">
+              <h1>Good day!</h1>
+              <p>Manage your events and schedule</p>
+            </div>
+        </div>
+        <div class="header-right">
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search events...">
+          </div>
+          <div class="user-profile">
+            <a href="AdSettings.html" class="profile-link">
+              <img src="../assets/lorenxo.jpg" alt="Admin" class="profile-img">
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <div class="dashboard-content">
+        <div class="calendar-section">
+          <div class="calendar-container">
+            <div id="calendar" style="height: 600px;"></div>
+          </div>
+        </div>
+
+        <div class="events-sidebar">
+          <div class="events-header">
+            <h3>Today's Events</h3>
+            <span class="event-count" id="eventCount">0</span>
+          </div>
+          <div class="events-list" id="todayEvents"></div>
+
+          <div class="quick-stats">
+            <h4>Quick Stats</h4>
+            <div class="stat-item">
+              <span class="stat-label">Total Events</span>
+              <span class="stat-value" id="totalEvents">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">This Week</span>
+              <span class="stat-value" id="weekEvents">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">This Month</span>
+              <span class="stat-value" id="monthEvents">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.js"></script>
+    <script src="../admin/calendar.js"></script>
+    <script type="module" src="../backend/admin/alogout.js"></script>
+</body>
+</html>

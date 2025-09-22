@@ -1,0 +1,21 @@
+# Node / project dependencies
+node_modules/
+dist/
+build/
+
+# Firebase admin SDK file
+gcef-01023-firebase-adminsdk-*.json
+
+# Environment or config files containing secrets
+.env
+.env.local
+.env.*.local
+config.js
+firebaseConfig.js
+
+# Optional: Ignore log files
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
