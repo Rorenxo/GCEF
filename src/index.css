@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Dark Professional Theme */
+    --background:#000000 !important;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 64%;
+
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 83%;
+
+    --radius: 0.5rem;
+
+    /* Department Colors */
+    --ccs-orange: 24 95% 53%;
+    --ceas-blue: 217 91% 60%;
+    --cahs-red: 0 84% 60%;
+    --chtm-pink: 330 81% 60%;
+    --cba-yellow: 45 93% 47%;
+
+    /* Chart Colors */
+    --chart-1: 24 95% 53%;
+    --chart-2: 217 91% 60%;
+    --chart-3: 0 84% 60%;
+    --chart-4: 330 81% 60%;
+    --chart-5: 45 93% 47%;
+  }
+}
+
+@layer base {
+  :root {
+
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --border: 214.3 31.8% 91.4%;; 
+
+    --input: 214.3 31.8% 91.4%;
+
+  }
+}
