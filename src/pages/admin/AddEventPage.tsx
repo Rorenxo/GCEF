@@ -17,7 +17,6 @@ export default function AddEventPage() {
     try {
       let imageUrl: string | undefined
 
-      // ✅ Upload to Cloudinary instead of Firebase
       if (data.image instanceof File) {
         imageUrl = await uploadImage(data.image, { folder: "events", maxSizeMB: 5 })
       }

@@ -9,14 +9,14 @@ import {
   updateProfile,
   type User
 } from "firebase/auth"
-import { auth } from "@/lib/firebase" // ✅ make sure this exports your initialized auth instance
+import { auth } from "@/lib/firebase" 
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // 🔹 Track current user in real time
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user)
@@ -25,7 +25,7 @@ export function useAuth() {
     return unsubscribe
   }, [])
 
-  // 🔹 LOGIN
+
   const signIn = async (email: string, password: string) => {
     try {
       setError(null)
@@ -40,7 +40,6 @@ export function useAuth() {
     }
   }
 
-  // 🔹 REGISTER (with gordoncollege.edu.ph email validation)
   const signUp = async (firstName: string, lastName: string, email: string, password: string) => {
     try {
       setError(null)
@@ -50,16 +49,13 @@ export function useAuth() {
         throw new Error("Please use your official gordoncollege.edu.ph email.")
       }
 
-      // Create new user in Firebase
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       const createdUser = userCredential.user
 
-      // Update Firebase user's display name
       await updateProfile(createdUser, {
         displayName: `${firstName} ${lastName}`,
       })
 
-      // Update local state
       setUser({
         ...createdUser,
         displayName: `${firstName} ${lastName}`,
@@ -73,7 +69,6 @@ export function useAuth() {
     }
   }
 
-  // 🔹 LOGOUT
   const signOut = async () => {
     try {
       await firebaseSignOut(auth)
