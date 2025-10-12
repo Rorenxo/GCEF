@@ -36,16 +36,8 @@ export default function EventsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
-  // Editable form data
-  const [formData, setFormData] = useState({
-    eventName: "",
-    description: "",
-    startDate: "",
-    endDate: "",
-    location: "",
-    professor: "",
-    department: "CCS" as Department,
-  })
+
+
 
   const handleDelete = async () => {
     if (!selectedEvent) return
@@ -63,6 +55,16 @@ export default function EventsPage() {
     }
   }
 
+    const [formData, setFormData] = useState({
+    eventName: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+    location: "",
+    professor: "",
+    department: "CCS" as Department,
+  })
+
   const handleEditOpen = (event: Event) => {
     setSelectedEvent(event)
     setFormData({
@@ -77,24 +79,26 @@ export default function EventsPage() {
     setEditDialogOpen(true)
   }
 
-  const handleSaveEdit = async () => {
-    if (!selectedEvent) return
-    setSaving(true)
-    try {
-      await updateEvent(selectedEvent.id, {
-        ...formData,
+    const handleSaveEdit = async () => {
+      if (!selectedEvent) return
+      setSaving(true)
+      try {
+        await updateEvent(selectedEvent.id, {
+          ...formData,
+          // @ts-ignore
         startDate: new Date(formData.startDate),
+        // @ts-ignore
         endDate: new Date(formData.endDate),
-      })
-      setEditDialogOpen(false)
-      setSelectedEvent(null)
-    } catch (error) {
-      console.error("Failed to update event:", error)
-      alert("Failed to save changes. Please try again.")
-    } finally {
-      setSaving(false)
+        })
+        setEditDialogOpen(false)
+        setSelectedEvent(null)
+      } catch (error) {
+        console.error("Failed to update event:", error)
+        alert("Failed to save changes. Please try again.")
+      } finally {
+        setSaving(false)
+      }
     }
-  }
 
   if (loading) {
     return (

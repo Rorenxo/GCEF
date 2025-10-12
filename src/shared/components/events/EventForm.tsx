@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, type FormEvent } from "react"
 import { Button } from "@/shared/components/ui/button"
 import { Input } from "@/shared/components/ui/input"
@@ -11,7 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import type { Department, EventFormData, Event } from "@/types"
 import { Upload, X } from "lucide-react"
-import { validateImageFile } from "@/lib/imageUpload"
+
+// ✅ Add this helper here (was missing)
+function validateImageFile(file: File): { valid: boolean; error?: string } {
+  const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+  if (!validTypes.includes(file.type)) return { valid: false, error: "Unsupported file type." }
+  if (file.size > 5 * 1024 * 1024) return { valid: false, error: "File must be less than 5MB." }
+  return { valid: true }
+}
 
 interface EventFormProps {
   onSubmit: (data: EventFormData) => Promise<void>
@@ -45,6 +51,8 @@ export default function EventForm({ onSubmit, initialData, isLoading }: EventFor
 
       setImageError(null)
       setImageFile(file)
+
+      // Preview
       const reader = new FileReader()
       reader.onloadend = () => {
         setImagePreview(reader.result as string)
@@ -69,7 +77,7 @@ export default function EventForm({ onSubmit, initialData, isLoading }: EventFor
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card className="border-zinc-200 bg-white shadow-xl">
         <CardHeader>
-          <CardTitle className="text-xinc-900">Event Details</CardTitle>
+          <CardTitle className="text-zinc-900">Event Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -169,18 +177,19 @@ export default function EventForm({ onSubmit, initialData, isLoading }: EventFor
               onValueChange={(value) => setFormData({ ...formData, department: value as Department })}
             >
               <SelectTrigger className="border-zinc-300 bg-zinc-50 text-zinc-900">
-                <SelectValue />
+                <SelectValue placeholder="Select Department" />
               </SelectTrigger>
               <SelectContent className="border-zinc-200 bg-white">
                 <SelectItem value="CCS">CCS - College of Computer Studies</SelectItem>
                 <SelectItem value="CEAS">CEAS - College of Education, Arts, and Sciences</SelectItem>
                 <SelectItem value="CAHS">CAHS - College of Allied Health Studies</SelectItem>
                 <SelectItem value="CHTM">CHTM - College of Hospitality Tourism Management</SelectItem>
-                <SelectItem value="CBA">CBA - College of  Business and Accountancy</SelectItem>
+                <SelectItem value="CBA">CBA - College of Business and Accountancy</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
+          {/* IMAGE UPLOAD SECTION */}
           <div className="space-y-2">
             <Label htmlFor="image" className="text-zinc-700">
               Event Image
