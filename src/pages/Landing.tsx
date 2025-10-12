@@ -22,6 +22,18 @@
             <div className="absolute inset-0 bg-black opacity-20"></div>
             <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
             <div className="animate-fade-in">
+            <div className="flex justify-center items-center gap-6 mb-6">
+                <div className="flex justify-center items-center gap-6 mb-6">
+                <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg border-4 border-green-400">
+                    <img
+                    src="src/assets/gcef1.png"
+                    alt="GCEF Logo"
+                    className="w-full h-full object-cover"
+                    />
+                </div>
+
+                </div>
+            </div>
                 <h1 className="text-6xl md:text-7xl font-bold mb-6 drop-shadow-lg text-green-400">
                 GCEF
                 </h1>
