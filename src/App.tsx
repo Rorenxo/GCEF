@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { ProtectedRoute } from "@/shared/components/ProtectedRoute"
-import Login from "@/pages/admin/Login"
+import Login from "@/auth/adminAuth/Login"
 import Dashboard from "@/pages/admin/Dashboard"
 import CalendarPage from "@/pages/admin/CalendarPage"
 import EventsPage from "@/pages/admin/EventsPage"

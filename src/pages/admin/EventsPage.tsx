@@ -13,7 +13,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog"
-import { Trash2, Eye } from "lucide-react"
+import { Input } from "@/shared/components/ui/input"
+import { Textarea } from "@/shared/components/ui/textarea"
+import { Trash2, Eye, Pencil } from "lucide-react"
 import { formatDateTime } from "@/lib/utils"
 import type { Event, Department } from "@/types"
 
@@ -26,11 +28,24 @@ const departmentColors: Record<Department, string> = {
 }
 
 export default function EventsPage() {
-  const { events, loading, deleteEvent } = useEvents()
+  const { events, loading, deleteEvent, updateEvent } = useEvents()
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [viewDialogOpen, setViewDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  // Editable form data
+  const [formData, setFormData] = useState({
+    eventName: "",
+    description: "",
+    startDate: "",
+    endDate: "",
+    location: "",
+    professor: "",
+    department: "CCS" as Department,
+  })
 
   const handleDelete = async () => {
     if (!selectedEvent) return
@@ -48,6 +63,39 @@ export default function EventsPage() {
     }
   }
 
+  const handleEditOpen = (event: Event) => {
+    setSelectedEvent(event)
+    setFormData({
+      eventName: event.eventName,
+      description: event.description,
+      startDate: event.startDate.toISOString().slice(0, 16),
+      endDate: event.endDate.toISOString().slice(0, 16),
+      location: event.location,
+      professor: event.professor,
+      department: event.department,
+    })
+    setEditDialogOpen(true)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!selectedEvent) return
+    setSaving(true)
+    try {
+      await updateEvent(selectedEvent.id, {
+        ...formData,
+        startDate: new Date(formData.startDate),
+        endDate: new Date(formData.endDate),
+      })
+      setEditDialogOpen(false)
+      setSelectedEvent(null)
+    } catch (error) {
+      console.error("Failed to update event:", error)
+      alert("Failed to save changes. Please try again.")
+    } finally {
+      setSaving(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -61,7 +109,7 @@ export default function EventsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-black">Events</h1>
-          <p className="text-zinc-600 p-1" >Manage all GCEF events</p>
+          <p className="text-zinc-600 p-1">Manage all GCEF events</p>
         </div>
       </div>
 
@@ -100,6 +148,7 @@ export default function EventsPage() {
                       <TableCell className="text-zinc-700">{event.professor}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
+                          {/* View Button */}
                           <Button
                             variant="ghost"
                             size="icon"
@@ -107,10 +156,22 @@ export default function EventsPage() {
                               setSelectedEvent(event)
                               setViewDialogOpen(true)
                             }}
-                            className="text-zinc-500 hover:bg-zinc-200 hover:text-white"
+                            className="text-zinc-500 hover:bg-zinc-200"
                           >
-                            <Eye className="h-4 w-4 text-zinc-900 hover:text-800" />
+                            <Eye className="h-4 w-4 text-zinc-900" />
                           </Button>
+
+                          {/* Edit Button */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditOpen(event)}
+                            className="text-zinc-500 hover:bg-zinc-200 hover:text-blue-600"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* Delete Button */}
                           <Button
                             variant="ghost"
                             size="icon"
@@ -133,7 +194,7 @@ export default function EventsPage() {
         </CardContent>
       </Card>
 
-      {/* View Event Dialog */}
+      {/* ===== View Event Dialog ===== */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent className="border-zinc-200 bg-white text-zinc-900 shadow-xl w-full max-w-lg">
           <DialogHeader>
@@ -174,20 +235,80 @@ export default function EventsPage() {
                     <p className="text-zinc-800">{selectedEvent.professor}</p>
                   </div>
                 </div>
-                <div>
-                  <p className="text-sm text-zinc-500">Department</p>
-                  <div className="flex items-center gap-2">
-                    <div className={`h-2 w-2 rounded-full ${departmentColors[selectedEvent.department]}`} />
-                    <p className="text-zinc-800">{selectedEvent.department}</p>
-                  </div>
-                </div>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* ===== Edit Dialog ===== */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="border-zinc-300 bg-white text-zinc-700 max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Edit Event</DialogTitle>
+            <DialogDescription className="text-zinc-500">
+              Update event details and save your changes.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 p-2">
+            <Input
+              placeholder="Event Name"
+              value={formData.eventName}
+              onChange={(e) => setFormData({ ...formData, eventName: e.target.value })}
+            />
+            <Textarea
+              placeholder="Description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                type="datetime-local"
+                value={formData.startDate}
+                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+              />
+              <Input
+                type="datetime-local"
+                value={formData.endDate}
+                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+              />
+            </div>
+            <Input
+              placeholder="Location"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+            />
+            <Input
+              placeholder="Professor"
+              value={formData.professor}
+              onChange={(e) => setFormData({ ...formData, professor: e.target.value })}
+            />
+            <select
+              className="w-full rounded-md border border-zinc-300 bg-white p-2 text-sm"
+              value={formData.department}
+              onChange={(e) => setFormData({ ...formData, department: e.target.value as Department })}
+            >
+              <option value="CCS">CCS</option>
+              <option value="CEAS">CEAS</option>
+              <option value="CAHS">CAHS</option>
+              <option value="CHTM">CHTM</option>
+              <option value="CBA">CBA</option>
+            </select>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={saving} className="bg-blue-600 text-white hover:bg-blue-700">
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ===== Delete Dialog ===== */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="border-zinc-300 bg-white text-zinc-700">
           <DialogHeader>
@@ -197,11 +318,7 @@ export default function EventsPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              className="border-zinc-200 bg-white text-zinc-900 shadow-xl w-full max-w-sm hover:bg-700"
-            >
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleDelete} disabled={!!deletingId} className="bg-red-600 text-white hover:bg-red-700">

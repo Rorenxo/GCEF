@@ -45,6 +45,6 @@ Events are color-coded by department:
 - npm run dev
 
 ## DEVELOPER
-- Created By: UIX 2025
+**Created By: UIX 2025**
 - Lorenxo The Great - Frontend
 - Jace the Backend - Backend

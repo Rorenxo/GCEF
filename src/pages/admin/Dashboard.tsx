@@ -17,8 +17,6 @@ const departmentColors: Record<Department, string> = {
   const CARD_BORDER = "border-zinc-200";
   const DARK_TEXT = "text-zinc-900"; 
   const SECONDARY_TEXT = "text-zinc-600";
-   const GRADIENT_BG_CLASSES = "bg-gradient-to-b from-[#076653] via-[#0C342C] to-[#06231D]";
-   
 
 
 export default function Dashboard() {
