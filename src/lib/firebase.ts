@@ -8,7 +8,7 @@ const firebaseConfig = {
   authDomain: "gcef-01023.firebaseapp.com",
   databaseURL: "https://gcef-01023-default-rtdb.firebaseio.com",
   projectId: "gcef-01023",
-  storageBucket: "gcef-01023.firebasestorage.app",
+  storageBucket: "gcef-01023.appspot.com",
   messagingSenderId: "796713752559",
   appId: "1:796713752559:web:7cf53d9f7166a5b853c81a",
   measurementId: "G-SV3QM5Z5QZ",
