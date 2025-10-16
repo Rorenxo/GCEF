@@ -4,7 +4,7 @@ import { ProtectedStudentRoute } from "@/shared/components/ProtectedStudentRoute
 
 import Login from "@/auth/adminAuth/Login"
 import OrganizerLogin from "@/auth/organizerAuth/OrgLogin"
-import StudentLogin from "@/auth/studentAuth/StudentLogin"
+import StudentLogin from "@/auth/studentAuth/studentLogin"
 import LandingPage from "@/pages/Landing"
 import TermsPage from "@/auth/terms"
 
