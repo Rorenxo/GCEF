@@ -44,7 +44,7 @@
         <nav className="flex-1 overflow-y-auto p-4 space-y-1">
             {navigation.map((item) => (
             <NavLink
-                key={item.name}
+                key={item.href}
                 to={item.href}
                 end={item.href === "/organizer"}
                 className={({ isActive }) =>

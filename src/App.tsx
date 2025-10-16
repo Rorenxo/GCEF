@@ -8,9 +8,12 @@ import TermsPage from "@/auth/terms";
 import Dashboard from "@/pages/admin/Dashboard"
 import CalendarPage from "@/pages/admin/CalendarPage"
 import EventsPage from "@/pages/admin/EventsPage"
+import PendingOrganizersPage from "@/pages/admin/PendingOrg"
+import ApprovedOrganizersHistoryPage from '@/pages/admin/ApproveHistory';
 import AddEventPage from "@/pages/admin/AddEventPage"
 import AdminLayout from "@/shared/components/layout/adminlayout/Layout" 
 import OrganizerLayout from "@/shared/components/layout/organizerlayout/Olayout" 
+import OrganizerDashboard from "@/pages/organizer/Dashboard"
 
 function App() {
   return (
@@ -35,6 +38,9 @@ function App() {
         >
           <Route index element={<Dashboard />} />   
           <Route path="calendar" element={<CalendarPage />} />
+          <Route path="pending-organizers" element={<PendingOrganizersPage />} />
+          <Route path="organizers/history" element={<ApprovedOrganizersHistoryPage />} />
+          <Route path="events" element={<EventsPage />} />
           <Route path="events" element={<EventsPage />} />
           <Route path="add-event" element={<AddEventPage />} />
         </Route>
@@ -49,7 +55,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Dashboard />} />   
+          <Route index element={<OrganizerDashboard />} />  
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} /> 

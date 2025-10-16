@@ -1,7 +1,7 @@
-  "use client"
+"use client"
 
   import { NavLink } from "react-router-dom"
-  import { Calendar, LayoutDashboard, List, Plus, LogOut } from "lucide-react"
+  import { Calendar, LayoutDashboard, List, Plus, LogOut, UserCheck } from "lucide-react" 
   import { useAuth } from "@/hooks/useAuth"
   import { Button } from "@/shared/components/ui/button"
   import { cn } from "@/lib/utils"
@@ -9,10 +9,11 @@
 
 
   const navigation = [
-    { name: "Dashboard", href: "/", icon: LayoutDashboard },
-    { name: "Calendar", href: "/calendar", icon: Calendar },
-    { name: "Events", href: "/events", icon: List },
-    { name: "Add Event", href: "/add-event", icon: Plus },
+    { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { name: "Calendar", href: "/admin/calendar", icon: Calendar },
+    { name: "Events", href: "/admin/events", icon: List },
+    { name: "Pending Organizers", href: "/admin/pending-organizers", icon: UserCheck },
+    { name: "Add Event", href: "/admin/add-event", icon: Plus },
   ]
 
   export default function Sidebar() {
@@ -47,7 +48,7 @@
             <NavLink
               key={item.name}
               to={item.href}
-              end={item.href === "/"}
+              end={item.href === "/admin"}
               className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
