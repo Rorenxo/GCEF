@@ -36,8 +36,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (path.startsWith("/organizer") && !email.endsWith("@gcorganizer.edu.ph")) {
     return <Navigate to="/" replace />
   }
-  if (path.startsWith("/student") && !email.endsWith("@gordoncollege.edu.ph")) {
-    return <Navigate to="/" replace />
+  if (path.startsWith("/student-login") && !email.endsWith("@gordoncollege.edu.ph")) {
+    return <Navigate to="/" replace />  
   }
 
   return <>{children}</>

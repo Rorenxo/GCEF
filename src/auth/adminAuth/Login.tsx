@@ -124,7 +124,7 @@ export default function Auth() {
               <Label htmlFor="email" className="text-zinc-900">Email</Label>
               <Input
                 id="email"
-                type="email"
+                type="email"  
                 placeholder="admin@gcadmin.edu.ph"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

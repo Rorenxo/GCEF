@@ -10,7 +10,7 @@ import {
   type User
 } from "firebase/auth"
 import { auth } from "@/lib/firebase" 
-import { doc, setDoc, getFirestore, deleteDoc } from "firebase/firestore" // 🆕 Added deleteDoc
+import { doc, setDoc, getFirestore } from "firebase/firestore"
 import { useNavigate } from "react-router-dom"
 
 const db = getFirestore()
@@ -84,7 +84,6 @@ export function useAuth() {
 
       let role = ""
       let collection = ""
-      let isOrganizer = false // 🆕 New flag
 
       if (email.endsWith("@gcadmin.edu.ph")) {
         role = "admin"
@@ -92,35 +91,13 @@ export function useAuth() {
       } else if (email.endsWith("@gcorganizer.edu.ph")){
         role = "organizer"
         collection = "organizers"
-        isOrganizer = true // 🆕 Set flag
       } else if (email.endsWith("@gordoncollege.edu.ph")) {
         role = "student"
         collection = "students"
       } else {
         throw new Error("Please use your official school email.")
       }
-      
-      // 🛑 ORGANIZER PENDING LOGIC 🛑
-      if (isOrganizer) {
-         // Save to a temporary collection and exit. 
-         // The Auth user will be created later by an admin.
-         await setDoc(doc(db, "pendingOrganizers", email), {
-            firstName,
-            lastName,
-            email,
-            password, 
-            role,
-            createdAt: new Date().toISOString(), // Use ISO string for easy Firestore handling
-            status: "pending" 
-         })
-         
-         // Throw a specific error that OrgLogin.tsx can catch and handle
-         throw new Error("Your organizer account is pending admin approval. You will be notified when approved.")
-      }
-      // ⬆️ END ORGANIZER PENDING LOGIC ⬆️
 
-
-      // ******* EXISTING LOGIC FOR ADMINS AND STUDENTS *******
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
       const createdUser = userCredential.user
 
@@ -128,7 +105,6 @@ export function useAuth() {
         displayName: `${firstName} ${lastName}`,
       })
 
-      // 🟢 Save to Firestore by role
       await setDoc(doc(db, collection, createdUser.uid), {
         uid: createdUser.uid,
         firstName,
@@ -167,71 +143,13 @@ export function useAuth() {
       setError(err.message || "Failed to sign out.")
     }
   }
-  
-  // 🆕 ADMIN APPROVAL FUNCTIONS 🆕
-
-  interface PendingOrganizer {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-    createdAt: string;
-  }
-
-  const approveOrganizer = async (pendingOrg: PendingOrganizer) => {
-      try {
-          const { email, password, firstName, lastName, role } = pendingOrg;
-          
-          // 1. Create the Firebase Auth user
-          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-          const approvedUser = userCredential.user;
-
-          await updateProfile(approvedUser, {
-              displayName: `${firstName} ${lastName}`,
-          });
-
-          // 2. Save to the active 'organizers' collection
-          await setDoc(doc(db, "organizers", approvedUser.uid), {
-              uid: approvedUser.uid,
-              firstName,
-              lastName,
-              email,
-              role,
-              createdAt: pendingOrg.createdAt,
-              approvedAt: new Date().toISOString()
-          });
-
-          // 3. Delete from the pending collection
-          await deleteDoc(doc(db, "pendingOrganizers", email)); 
-          
-          return true;
-      } catch (err: any) {
-          console.error("Organizer approval failed:", err);
-          throw new Error(err.message || "Failed to approve organizer.");
-      }
-  };
-
-  const rejectOrganizer = async (email: string) => {
-    try {
-        await deleteDoc(doc(db, "pendingOrganizers", email)); 
-        return true;
-    } catch (err: any) {
-        console.error("Organizer rejection failed:", err);
-        throw new Error(err.message || "Failed to reject organizer.");
-    }
-  }
-
 
   return {
     user,
     loading,
     error,
-    setError,
     signIn,
     signUp,
     signOut,
-    approveOrganizer, // 🆕 EXPORT NEW FUNCTION
-    rejectOrganizer,  // 🆕 EXPORT NEW FUNCTION
   }
 }

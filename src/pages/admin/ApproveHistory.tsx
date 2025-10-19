@@ -54,7 +54,7 @@ export default function ApprovedOrganizersHistoryPage() {
                 </div>
                 <Button 
                     onClick={() => navigate('/admin/pending-organizers')}
-                    className=" bg-red-600 text-white red-600 hover:bg-red-800 hover:text-white"
+                    className="  bg-red-600 text-white red-600 hover:bg-red-800 hover:text-white"
                 >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Pending Requests

@@ -61,7 +61,7 @@
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <a
-                href="/student-Login" 
+                href="/student-login" 
                 className="group block bg-white rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ease-in-out p-8 text-center border-2 border-gray-100 hover:border-green-500 hover:bg-green-50 animate-fade-in-item"
                 aria-label="Student Portal"
             >

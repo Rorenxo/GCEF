@@ -23,24 +23,21 @@ export default function Auth() {
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
-  // highlight-start
-  const [formError, setFormError] = useState("") // Para sa mas magandang error display
-  // highlight-end
+  const [formError, setFormError] = useState("") 
+
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setFormError("") // I-reset ang error sa bawat submit
+    setFormError("") 
 
     try {
-      // Para sa parehong Login at Register, i-check natin ang email format
-      // highlight-start
       if (!email.endsWith("@gcorganizer.edu.ph")) {
         setFormError("Please use your gcorganizer.edu.ph email address.")
         setIsLoading(false)
         return
       }
-      // highlight-end
+
 
       if (isLogin) {
         await signIn(email, password)
@@ -57,9 +54,8 @@ export default function Auth() {
       }
     } catch (err) {
       console.error("Auth failed:", err)
-      // Kung may error mula sa signIn (na hindi nahahandle ng useAuth hook), dito ito lalabas
       if (!error) {
-         setFormError("Authentication failed. Please check your credentials and try again.")
+        setFormError("Authentication failed. Please check your credentials and try again.")
       }
     } finally {
       setIsLoading(false)
@@ -78,7 +74,6 @@ export default function Auth() {
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
       
-      {/* highlight-start */}
       <Button
         type="button"
         className="absolute top-4 left-4 bg-red-600 text-white hover:bg-red-700 z-20"
@@ -90,7 +85,6 @@ export default function Auth() {
       >
         Leave
       </Button>
-      {/* highlight-end */}
 
       <Card className="relative z-10 w-full max-w-md border-zinc-800 bg-zinc-100/80 transition-all duration-500">
         <CardHeader className="space-y-1 text-center">
@@ -161,15 +155,11 @@ export default function Auth() {
                   required
                 />
               </div>
-              
-              {/* highlight-start */}
-              {/* Dito na ipapakita ang error galing sa form validation */}
+
               {formError && (
                 <div className="rounded-lg border border-red-900/50 bg-red-950/50 p-3 text-sm text-red-400">{formError}</div>
               )}
-              {/* highlight-end */}
 
-              {/* Ito naman ang error galing sa useAuth (e.g., wrong password) */}
               {error && (
                 <div className="rounded-lg border border-red-900/50 bg-red-950/50 p-3 text-sm text-red-400">{error}</div>
               )}

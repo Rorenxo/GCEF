@@ -28,7 +28,6 @@ export default function PendingOrganizersPage() {
 
 
     useEffect(() => {
-        // ... (walang pagbabago sa useEffect)
         const q = query(collection(db, "pendingOrganizers"), where("status", "==", "pending"));
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -98,8 +97,6 @@ export default function PendingOrganizersPage() {
                     <h1 className="text-3xl font-bold text-black">Pending Organizers</h1>
                     <p className="text-zinc-600 p-1">Review and approve new organizer account requests.</p>
                 </div>
-                {/* highlight-start */}
-                {/* 3. Idagdag ang History Button dito */}
                 <Button 
                     onClick={() => navigate('/admin/organizers/history')}
                     className="bg-yellow-500 text-white hover:bg-yellow-700"
@@ -108,7 +105,6 @@ export default function PendingOrganizersPage() {
                     History
                 </Button>
  
-                {/* highlight-end */}
             </div>
 
             <Card className="border-zinc-200 bg-white shadow-lg">

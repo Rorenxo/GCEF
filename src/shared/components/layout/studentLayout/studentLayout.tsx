@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Outlet } from "react-router-dom";
-import StudentSidebar from "@/shared/components/StudentSidebar";
+import StudentSidebar from "@/shared/components/layout/studentLayout/StudentSidebar";
 
 export default function StudentLayout() {
   return (
