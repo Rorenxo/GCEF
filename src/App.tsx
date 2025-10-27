@@ -1,14 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { ProtectedRoute } from "@/shared/components/ProtectedRoute"
 
-
-
+// ---------- PUBLIC PAGES ----------
 import Login from "@/auth/adminAuth/Login"
 import OrganizerLogin from "@/auth/organizerAuth/OrgLogin"
 import TermsPage from "@/auth/terms"
 import LandingPage from "@/pages/Landing"
+import StudentLogin from "@/auth/studentAuth/studentLogin"
 
-
+// ---------- ADMIN ----------
 import Dashboard from "@/pages/admin/Dashboard"
 import CalendarPage from "@/pages/admin/CalendarPage"
 import EventsPage from "@/pages/admin/EventsPage"
@@ -18,14 +18,18 @@ import AddEventPage from "@/pages/admin/AddEventPage"
 import AnalyticsPage from "@/pages/admin/Analytics"
 import AdminLayout from "@/shared/components/layout/adminlayout/Layout"
 
-
+// ---------- ORGANIZER ----------
 import OrganizerLayout from "@/shared/components/layout/organizerlayout/Olayout"
-import OrganizerDashboard from "@/pages/organizer/Dashboard" 
+import OrganizerDashboard from "@/pages/organizer/Dashboard"
 
+// ---------- STUDENT ----------
 import StudentLayout from "@/shared/components/layout/studentLayout/studentLayout"
 import StudentFeed from "@/pages/student/Student"
-import StudentSidebar from "@/shared/components/layout/studentLayout/StudentSidebar"
-import StudentLogin from "@/auth/studentAuth/studentLogin"
+import StudentDashboard from "@/pages/student/StudentDashboard"
+import StudentCalendar from "@/pages/student/StudentCalendar"
+import StudentEvents from "@/pages/student/StudentEvents"
+import StudentMessages from "@/pages/student/StudentMessages"
+import StudentSettings from "@/pages/student/StudentSettings"
 
 function App() {
   return (
@@ -36,8 +40,7 @@ function App() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/OrgLogin" element={<OrganizerLogin />} />
-        <Route path="student-login" element={<StudentLogin />} />
-
+        <Route path="/student-login" element={<StudentLogin />} />
 
         {/* ---------- ADMIN ROUTES ---------- */}
         <Route
@@ -57,8 +60,6 @@ function App() {
           <Route path="add-event" element={<AddEventPage />} />
         </Route>
 
-
-
         {/* ---------- ORGANIZER ROUTES ---------- */}
         <Route
           path="/organizer"
@@ -71,7 +72,6 @@ function App() {
           <Route index element={<OrganizerDashboard />} />
         </Route>
 
-
         {/* ---------- STUDENT ROUTES ---------- */}
         <Route
           path="/student"
@@ -81,20 +81,21 @@ function App() {
             </ProtectedRoute>
           }
         >
+          {/* Default feed */}
           <Route index element={<StudentFeed />} />
-          
-
-          <Route path="feed" element={<StudentSidebar />} />
-          <Route path="events" element={<StudentSidebar />} />
-          <Route path="calendar" element={<StudentSidebar />} />
-          <Route path="profile" element={<StudentSidebar />} />
-          <Route path="settings" element={<StudentSidebar />} />
-          <Route path="notifications" element={<StudentSidebar />} />
-          <Route path="messages" element={<StudentSidebar />} />
-          <Route path="search" element={<StudentSidebar />} />
+          {/* Dashboard */}
+          <Route path="dashboard" element={<StudentDashboard />} />
+          {/* Calendar */}
+          <Route path="calendar" element={<StudentCalendar />} />
+          {/* My Events */}
+          <Route path="events" element={<StudentEvents />} />
+          {/* Messages */}
+          <Route path="messages" element={<StudentMessages />} />
+          {/* Settings */}
+          <Route path="settings" element={<StudentSettings />} />
         </Route>
 
-
+        {/* ---------- CATCH ALL ---------- */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

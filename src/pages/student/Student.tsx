@@ -15,7 +15,12 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import useAuth from "@/shared/components/useStudentAuth";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/ui/card";
 import { Calendar, MapPin, Users, Heart, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 
@@ -46,10 +51,10 @@ const departmentColors: Record<string, string> = {
   CBA: "bg-yellow-500",
 };
 
-const CARD_BG = "bg-white dark:bg-zinc-900";
-const CARD_BORDER = "border-zinc-200 dark:border-zinc-800";
-const DARK_TEXT = "text-zinc-900 dark:text-zinc-100";
-const SECONDARY_TEXT = "text-zinc-600 dark:text-zinc-400";
+const CARD_BG = "bg-white";
+const CARD_BORDER = "border-zinc-200";
+const DARK_TEXT = "text-zinc-900";
+const SECONDARY_TEXT = "text-zinc-600";
 
 export default function StudentFeed() {
   const [events, setEvents] = useState<EventType[]>([]);
@@ -70,7 +75,6 @@ export default function StudentFeed() {
     if (!user) return alert("Please sign in to like posts");
     const eventRef = doc(db, "events", eventId);
     const alreadyLiked = likes.includes(user.uid);
-
     await updateDoc(eventRef, {
       likes: alreadyLiked ? arrayRemove(user.uid) : arrayUnion(user.uid),
     });
@@ -79,7 +83,6 @@ export default function StudentFeed() {
   const addComment = async (eventId: string, text: string) => {
     if (!user) return alert("Please sign in to comment");
     if (!text.trim()) return;
-
     try {
       const commentsRef = collection(db, "events", eventId, "comments");
       await addDoc(commentsRef, {
@@ -95,29 +98,27 @@ export default function StudentFeed() {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white dark:bg-zinc-950">
+      <div className="flex h-screen items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-300 dark:border-zinc-700 border-t-cyan-500" />
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading feed...</p>
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-300 border-t-cyan-500" />
+          <p className="text-sm text-zinc-500">Loading events...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <main className="flex flex-col h-screen bg-zinc-50 dark:bg-zinc-950">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 px-6 py-4 shadow-sm">
-        <h1 className={`text-2xl font-bold ${DARK_TEXT}`}>Student Feed</h1>
-        <p className={SECONDARY_TEXT}>Stay updated with the latest campus events</p>
+    <main className="flex flex-col min-h-screen bg-white px-6 py-6">
+      <header className="sticky top-0 z-10 bg-white border-b border-zinc-200 px-4 py-3 shadow-sm">
+        <h1 className={`text-2xl font-bold ${DARK_TEXT}`}>Campus Feed</h1>
+        <p className={SECONDARY_TEXT}>See all events happening at GCEF</p>
       </header>
 
-      {/* Scrollable Feed */}
-      <section className="flex-1 overflow-y-auto px-6 py-6 space-y-6 scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-700">
+      <section className="flex-1 overflow-y-auto space-y-6 mt-6">
         {events.length === 0 ? (
           <Card className={`${CARD_BG} ${CARD_BORDER} p-6`}>
-            <p className="text-center text-zinc-500 dark:text-zinc-400">
-              No events found.
+            <p className="text-center text-zinc-500">
+              No events available yet.
             </p>
           </Card>
         ) : (
@@ -151,7 +152,10 @@ function EventCard({
   const [comments, setComments] = useState<CommentType[]>([]);
 
   useEffect(() => {
-    const q = query(collection(db, "events", event.id, "comments"), orderBy("createdAt", "asc"));
+    const q = query(
+      collection(db, "events", event.id, "comments"),
+      orderBy("createdAt", "asc")
+    );
     const unsub = onSnapshot(q, (snap) => {
       const arr = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
       setComments(arr);
@@ -172,7 +176,9 @@ function EventCard({
   }
 
   return (
-    <Card className={`${CARD_BG} ${CARD_BORDER} shadow-sm hover:shadow-md transition-all`}>
+    <Card
+      className={`${CARD_BG} ${CARD_BORDER} shadow-sm hover:shadow-md transition-all`}
+    >
       <CardHeader className="flex items-center justify-between pb-2">
         <div className="flex items-center gap-2">
           <div className={`h-3 w-3 rounded-full ${deptColor}`} />
@@ -199,7 +205,7 @@ function EventCard({
           <img
             src={event.imageUrl}
             alt={event.eventName || "Event image"}
-            className="rounded-md w-full max-h-80 object-cover shadow-sm"
+            className="rounded-md w-full max-h-96 object-cover shadow-sm"
           />
         )}
 
@@ -221,7 +227,7 @@ function EventCard({
             <span>{event.department || "Unknown Department"}</span>
           </div>
           {event.professor && (
-            <p className="text-xs italic text-zinc-500 dark:text-zinc-400 mt-1">
+            <p className="text-xs italic text-zinc-500 mt-1">
               Hosted by {event.professor}
             </p>
           )}
@@ -229,7 +235,7 @@ function EventCard({
 
         {/* Comments Section */}
         <div className="mt-4 space-y-3">
-          <div className="flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400 mb-2">
+          <div className="flex items-center gap-1 text-sm text-zinc-500 mb-2">
             <MessageCircle className="h-4 w-4" />
             <span>{comments.length} comments</span>
           </div>
@@ -237,14 +243,12 @@ function EventCard({
           {comments.map((c) => (
             <div
               key={c.id}
-              className="rounded-md bg-zinc-100 dark:bg-zinc-900 p-2 shadow-sm"
+              className="rounded-md bg-zinc-100 p-2 shadow-sm"
             >
-              <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+              <div className="text-sm font-medium text-zinc-800">
                 {c.authorName}
               </div>
-              <div className="text-sm text-zinc-700 dark:text-zinc-300">
-                {c.text}
-              </div>
+              <div className="text-sm text-zinc-700">{c.text}</div>
             </div>
           ))}
 
@@ -261,7 +265,7 @@ function EventCard({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Write a comment..."
-              className="flex-1 rounded-md border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-sm bg-white dark:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="flex-1 rounded-md border border-zinc-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
             <button
               type="submit"

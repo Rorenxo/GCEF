@@ -6,17 +6,14 @@ import StudentSidebar from "@/shared/components/layout/studentLayout/StudentSide
 
 export default function StudentLayout() {
   return (
-    <div className="min-h-screen flex bg-zinc-50 dark:bg-zinc-900">
+    <div className="flex h-screen bg-white">
       {/* Sidebar */}
-      <aside className="w-72 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-4">
-        <StudentSidebar />
-      </aside>
+      <StudentSidebar />
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
-        {/* The Student page (feed) will render here */}
+      {/* Main content area */}
+      <main className="flex-1 overflow-y-auto p-4 bg-white">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }
