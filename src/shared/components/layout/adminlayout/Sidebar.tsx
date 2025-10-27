@@ -14,6 +14,7 @@
     { name: "Events", href: "/admin/events", icon: List },
     { name: "Analytics", href: "/admin/analytics", icon: ChartPie },
     { name: "Pending Organizers", href: "/admin/pending-organizers", icon: UserCheck },
+    { name: "Approve Events", href: "/admin/approve-events", icon: Plus },
     { name: "Add Event", href: "/admin/add-event", icon: Plus },
   ]
 

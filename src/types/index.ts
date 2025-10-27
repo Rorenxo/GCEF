@@ -12,7 +12,11 @@ export interface Event {
   imageUrl?: string
   createdAt: Date
   updatedAt: Date
+  status?: "pending" | "approved" | "rejected" 
+  orgId?: string 
+  path?: string  
 }
+
 
 export interface EventFormData {
   eventName: string

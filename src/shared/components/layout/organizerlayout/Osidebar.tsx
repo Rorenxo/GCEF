@@ -9,8 +9,9 @@
 
     const navigation = [
     { name: "Dashboard", href: "/organizer", icon: LayoutDashboard },
-    { name: "My Events", href: "/organizer/events", icon: List },
     { name: "Calendar", href: "/organizer/calendar", icon: Calendar },
+    { name: "Add Event", href: "/organizer/add-event", icon: List },
+
     ]
 
     export default function Sidebar() {
