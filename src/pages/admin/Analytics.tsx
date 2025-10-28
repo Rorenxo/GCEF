@@ -103,7 +103,7 @@ useEffect(() => {
     setEvents(arr)
     })
 
-    const unsubOrganizers = onSnapshot(collection(db, "pendingOrganizers"), (snap) => {
+    const unsubOrganizers = onSnapshot(collection(db, "organizers"), (snap) => {
     const arr = snap.docs.map((d) => ({ id: d.id, ...(d.data() as OrganizerDoc) }))
     setOrganizers(arr)
     })
@@ -313,7 +313,7 @@ const handleDownloadPDF = async () => {
                     <div className="space-y-3">
                     {organizerActivity.length === 0 ? (
                         <p className="text-sm text-zinc-500">No organizers or event data yet.</p>
-                    ) : (
+                        ) : (
                         organizerActivity.slice(0, 6).map((o, idx) => (
                         <div
                             key={o.organizerId}

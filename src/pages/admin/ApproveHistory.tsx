@@ -23,18 +23,18 @@ export default function ApprovedOrganizersHistoryPage() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const q = query(collection(db, "pendingOrganizers"), where("status", "==", "approved"));
+    const q = query(collection(db, "organizers")); 
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const organizersData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            } as ApprovedOrganizer));
-            setApprovedOrganizers(organizersData);
-            setLoading(false);
-        });
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+        const organizersData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+        } as ApprovedOrganizer));
+        setApprovedOrganizers(organizersData);
+        setLoading(false);
+    });
 
-        return () => unsubscribe();
+    return () => unsubscribe();
     }, []);
 
     if (loading) {

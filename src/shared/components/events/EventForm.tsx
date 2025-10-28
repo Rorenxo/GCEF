@@ -180,6 +180,7 @@ export default function EventForm({ onSubmit, initialData, isLoading }: EventFor
                 <SelectValue placeholder="Select Department" />
               </SelectTrigger>
               <SelectContent className="border-zinc-200 bg-white">
+                <SelectItem value="ALL">ALL DEPARTMENT</SelectItem>
                 <SelectItem value="CCS">CCS - College of Computer Studies</SelectItem>
                 <SelectItem value="CEAS">CEAS - College of Education, Arts, and Sciences</SelectItem>
                 <SelectItem value="CAHS">CAHS - College of Allied Health Studies</SelectItem>

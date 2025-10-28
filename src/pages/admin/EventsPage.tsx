@@ -20,6 +20,7 @@ import { formatDateTime } from "@/lib/utils"
 import type { Event, Department } from "@/types"
 
 const departmentColors: Record<Department, string> = {
+  ALL: "bg-zinc-300",
   CCS: "bg-orange-500",
   CEAS: "bg-blue-500",
   CAHS: "bg-red-500",
@@ -62,7 +63,7 @@ export default function EventsPage() {
     endDate: "",
     location: "",
     professor: "",
-    department: "CCS" as Department,
+    department: "ALL" as Department,
   })
 
   const handleEditOpen = (event: Event) => {
@@ -79,7 +80,8 @@ export default function EventsPage() {
     setEditDialogOpen(true)
   }
 
-    const handleSaveEdit = async () => {
+    const handleSaveEdit = async  (e?: React.FormEvent) => {
+       e?.preventDefault();
       if (!selectedEvent) return
       setSaving(true)
       try {
@@ -92,11 +94,12 @@ export default function EventsPage() {
         })
         setEditDialogOpen(false)
         setSelectedEvent(null)
+      alert("Your event has been saved successfully!");
       } catch (error) {
-        console.error("Failed to update event:", error)
-        alert("Failed to save changes. Please try again.")
+        console.error("Failed to update event:", error);
+        alert("Failed to save changes. Please try again.");
       } finally {
-        setSaving(false)
+        setSaving(false);
       }
     }
 
@@ -293,6 +296,7 @@ export default function EventsPage() {
               value={formData.department}
               onChange={(e) => setFormData({ ...formData, department: e.target.value as Department })}
             >
+              <option value="ALL">ALL DEPARTMENT</option>
               <option value="CCS">CCS</option>
               <option value="CEAS">CEAS</option>
               <option value="CAHS">CAHS</option>
