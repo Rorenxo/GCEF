@@ -1,16 +1,16 @@
     "use client"
 
     import { NavLink } from "react-router-dom"
-    import { LayoutDashboard, Calendar, List, LogOut } from "lucide-react"
+    import { House,  LogOut, CalendarPlus,ChartNoAxesCombined } from "lucide-react"
     import { Button } from "@/shared/components/ui/button"
     import { useAuth } from "@/hooks/useAuth"
     import { cn } from "@/lib/utils"
     import gcef1 from "@/assets/gcef1.png"
 
     const navigation = [
-    { name: "Dashboard", href: "/organizer", icon: LayoutDashboard },
-    { name: "My Events", href: "/organizer/events", icon: List },
-    { name: "Calendar", href: "/organizer/calendar", icon: Calendar },
+    { name: "Home", href: "/organizer", icon: House },
+    { name: "Add Event", href: "/organizer/add-event", icon: CalendarPlus, },
+    { name: "Statistics", href: "/organizer/statistics", icon: ChartNoAxesCombined },
     ]
 
     export default function Sidebar() {

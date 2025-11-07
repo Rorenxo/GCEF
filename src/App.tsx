@@ -20,7 +20,11 @@ import AdminLayout from "@/shared/components/layout/adminlayout/Layout"
 
 // ---------- ORGANIZER ----------
 import OrganizerLayout from "@/shared/components/layout/organizerlayout/Olayout"
-import OrganizerDashboard from "@/pages/organizer/Dashboard"
+import OrganizerDashboard from "@/pages/organizer/home"
+import EventDetails from "@/pages/organizer/EventDetails"
+import StatisticsPage from "@/pages/organizer/orgstats"
+import OrgEventPage from "@/pages/organizer/addEvent"
+
 
 // ---------- STUDENT ----------
 import StudentLayout from "@/shared/components/layout/studentLayout/studentLayout"
@@ -28,7 +32,7 @@ import StudentFeed from "@/pages/student/Student"
 import StudentDashboard from "@/pages/student/StudentDashboard"
 import StudentCalendar from "@/pages/student/StudentCalendar"
 import StudentEvents from "@/pages/student/StudentEvents"
-import StudentMessages from "@/pages/student/StudentMessages"
+import StudentMessages from "@/pages/student/StudentMEssages"
 import StudentSettings from "@/pages/student/StudentSettings"
 
 function App() {
@@ -69,7 +73,11 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<OrganizerDashboard />} />
+        <Route index element={<OrganizerDashboard />} />
+        <Route path="add-event" element={<OrgEventPage />} />
+        <Route path="statistics" element={<StatisticsPage />} />
+        <Route path="/organizer/:organizerId/events/:eventId" element={<EventDetails />} />
+
         </Route>
 
         {/* ---------- STUDENT ROUTES ---------- */}

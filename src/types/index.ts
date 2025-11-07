@@ -10,6 +10,8 @@ export interface Event {
   professor: string
   department: Department
   imageUrl?: string
+  likes?: number
+  comments?: number
   createdAt: Date
   updatedAt: Date
 }

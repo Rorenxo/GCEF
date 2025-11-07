@@ -6,6 +6,7 @@ import { Calendar, Users, MapPin, TrendingUp } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import type { Department } from "@/types"
 
+
 const departmentColors: Record<Department, string> = {
  ALL: "bg-gray-500", 
   CCS: "bg-orange-500",
@@ -22,6 +23,7 @@ const departmentColors: Record<Department, string> = {
 
 export default function Dashboard() {
   const { events, loading } = useEvents()
+
 
   const upcomingEvents = events.filter((event) => event.startDate > new Date()).slice(0, 5)
   const totalEvents = events.length

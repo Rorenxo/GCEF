@@ -5,13 +5,16 @@ import {
   collection,
   query,
   orderBy,
+  where,
   onSnapshot,
   addDoc,
   updateDoc,
   deleteDoc,
   doc,
+  getDoc,
   Timestamp,
 } from "firebase/firestore"
+import { getAuth } from "firebase/auth"
 import { db } from "@/lib/firebase"
 import type { Event, EventFormData } from "@/types"
 
@@ -21,37 +24,71 @@ export function useEvents() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const q = query(collection(db, "events"), orderBy("startDate", "desc"))
+    const auth = getAuth()
+    const user = auth.currentUser
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const eventsData = snapshot.docs.map((doc) => {
-          const data = doc.data()
-          return {
-            id: doc.id,
-            ...data,
-            startDate: data.startDate.toDate(),
-            endDate: data.endDate.toDate(),
-            createdAt: data.createdAt.toDate(),
-            updatedAt: data.updatedAt.toDate(),
-          } as Event
-        })
-        setEvents(eventsData)
-        setLoading(false)
-      },
-      (err) => {
+    if (!user) {
+      setLoading(false)
+      setError("User not authenticated")
+      return
+    }
+
+    const fetchEvents = async () => {
+      try {
+        const adminDoc = await getDoc(doc(db, "admins", user.uid))
+        let q
+
+        if (adminDoc.exists()) {
+          q = query(collection(db, "events"), orderBy("startDate", "desc"))
+        } else {
+          q = query(
+            collection(db, "events"),
+            where("createdBy", "==", user.uid),
+            orderBy("startDate", "desc")
+          )
+        }
+
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            const eventsData = snapshot.docs.map((doc) => {
+              const data = doc.data()
+              return {
+                id: doc.id,
+                ...data,
+                startDate: data.startDate?.toDate(),
+                endDate: data.endDate?.toDate(),
+                createdAt: data.createdAt?.toDate(),
+                updatedAt: data.updatedAt?.toDate(),
+              } as Event
+            })
+            setEvents(eventsData)
+            setLoading(false)
+          },
+          (err) => {
+            setError(err.message)
+            setLoading(false)
+          }
+        )
+
+        return unsubscribe
+      } catch (err: any) {
         setError(err.message)
         setLoading(false)
-      },
-    )
+      }
+    }
 
-    return unsubscribe
+    fetchEvents()
   }, [])
 
-  const addEvent = async (eventData: EventFormData, imageUrl?: string) => {
+  const addEvent = async (eventData: EventFormData, imageUrls?: string[]) => {
     try {
+      const auth = getAuth()
+      const user = auth.currentUser
+      if (!user) throw new Error("User not authenticated")
+
       const now = Timestamp.now()
+
       await addDoc(collection(db, "events"), {
         eventName: eventData.eventName,
         startDate: Timestamp.fromDate(new Date(eventData.startDate)),
@@ -60,7 +97,8 @@ export function useEvents() {
         location: eventData.location,
         professor: eventData.professor,
         department: eventData.department,
-        imageUrl: imageUrl || null,
+        imageUrls: imageUrls || [],
+        createdBy: user.uid,
         createdAt: now,
         updatedAt: now,
       })
@@ -69,7 +107,7 @@ export function useEvents() {
     }
   }
 
-  const updateEvent = async (id: string, eventData: Partial<EventFormData>, imageUrl?: string) => {
+  const updateEvent = async (id: string, eventData: Partial<EventFormData>, imageUrls?: string[]) => {
     try {
       const eventRef = doc(db, "events", id)
       const updateData: any = {
@@ -83,8 +121,8 @@ export function useEvents() {
       if (eventData.endDate) {
         updateData.endDate = Timestamp.fromDate(new Date(eventData.endDate))
       }
-      if (imageUrl !== undefined) {
-        updateData.imageUrl = imageUrl
+      if (imageUrls !== undefined) {
+        updateData.imageUrls = imageUrls
       }
 
       await updateDoc(eventRef, updateData)

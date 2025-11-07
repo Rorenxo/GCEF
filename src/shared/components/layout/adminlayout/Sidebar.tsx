@@ -1,7 +1,7 @@
 "use client"
 
   import { NavLink } from "react-router-dom"
-  import { Calendar, LayoutDashboard, List, Plus, LogOut, UserCheck, ChartPie } from "lucide-react" 
+  import { Calendar, CalendarPlus, LayoutDashboard, List, Plus, LogOut, UserCheck, ChartNoAxesCombined } from "lucide-react" 
   import { useAuth } from "@/hooks/useAuth"
   import { Button } from "@/shared/components/ui/button"
   import { cn } from "@/lib/utils"
@@ -12,9 +12,9 @@
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Calendar", href: "/admin/calendar", icon: Calendar },
     { name: "Events", href: "/admin/events", icon: List },
-    { name: "Analytics", href: "/admin/analytics", icon: ChartPie },
+    { name: "Analytics", href: "/admin/analytics", icon: ChartNoAxesCombined },
     { name: "Pending Organizers", href: "/admin/pending-organizers", icon: UserCheck },
-    { name: "Add Event", href: "/admin/add-event", icon: Plus },
+    { name: "Add Event", href: "/admin/add-event", icon: CalendarPlus },
   ]
 
   export default function Sidebar() {
@@ -39,7 +39,7 @@
                 className="mx-auto mb-4 object-contain h-14 w-14 object-contain"
               />
           <div>
-            <h1 className="text-xl font-bold text-white">GCEF Admin</h1>
+            <h1 className="text-xl font-bold text-white">Admin</h1>
             <p className="text-xs text-zinc-400">Event Management</p>
           </div>
         </div>
