@@ -77,7 +77,14 @@ export function useAuth() {
   }
 
 
-  const signUp = async (firstName: string, lastName: string, email: string, password: string) => {
+  const signUp = async (
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string,
+    additionalData: Record<string, any> = {},
+    signOutAfter: boolean = false
+  ) => {
     try {
       setError(null)
       setLoading(true)
@@ -106,22 +113,27 @@ export function useAuth() {
       })
 
       await setDoc(doc(db, collection, createdUser.uid), {
-        uid: createdUser.uid,
         firstName,
         lastName,
         email,
         role,
-        createdAt: new Date()
+        createdAt: new Date(),
+        ...additionalData, // Add other student details here
       })
 
-      setUser(createdUser)
+      if (signOutAfter) {
+        await firebaseSignOut(auth)
+      } else {
+        setUser(createdUser)
+        if (role === "admin") navigate("/admin")
+        else if (role === "organizer") navigate("/organizer")
+        else if (role === "student") navigate("/student")
 
-      if (role === "admin") navigate("/admin")
-      else if (role === "organizer") navigate("/organizer")
-      else if (role === "student") navigate("/student")
+        localStorage.setItem(TOKEN_KEY, createdUser.uid)
+        localStorage.setItem(TOKEN_EXPIRY_KEY, String(Date.now() + TOKEN_DURATION))
+      }
 
-      localStorage.setItem(TOKEN_KEY, createdUser.uid)
-      localStorage.setItem(TOKEN_EXPIRY_KEY, String(Date.now() + TOKEN_DURATION))
+      return userCredential
 
     } catch (err: any) {
       console.error("Sign up error:", err)

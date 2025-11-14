@@ -190,10 +190,7 @@ export default function StudentFeed() {
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Main Feed */}
       <main className="flex-1 flex flex-col overflow-hidden pt-4">
-
-        {/* Filter Section */}
         <div className="bg-card px-4 md:px-8 py-4 shadow-sm relative">
-          {/* Desktop filters */}
           <div className="hidden lg:flex gap-2 overflow-x-auto pb-2">
             {["ALL", "CCS", "CEAS", "CAHS", "CHTM", "CBA"].map((dept) => (
               <button
@@ -209,8 +206,6 @@ export default function StudentFeed() {
               </button>
             ))}
           </div>
-
-          {/* Mobile filter button */}
           <div className="flex justify-between items-center gap-4 lg:hidden">
             <div className="relative flex items-center flex-1">
               <Search className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -229,8 +224,6 @@ export default function StudentFeed() {
               Filter
             </button>
           </div>
-
-          {/* Mobile filter dropdown */}
           {showMobileFilters && ( 
             <div className="lg:hidden absolute right-4 mt-2 w-48 bg-white border rounded-md shadow-lg z-10 p-2 space-y-1">
               {["ALL", "CCS", "CEAS", "CAHS", "CHTM", "CBA"].map((dept) => (
@@ -337,7 +330,6 @@ export default function StudentFeed() {
         </section>
       </main>
 
-      {/* Right Sidebar - Calendar and Messages */}
       <aside className="hidden lg:flex w-96 bg-card overflow-y-auto flex-col gap-6 p-6">
         {/* Sidebar Header */}
         <div className="flex items-center gap-4">

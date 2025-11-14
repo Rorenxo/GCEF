@@ -24,6 +24,7 @@ import OrganizerDashboard from "@/pages/organizer/home"
 import EventDetails from "@/pages/organizer/EventDetails"
 import StatisticsPage from "@/pages/organizer/orgstats"
 import OrgEventPage from "@/pages/organizer/addEvent"
+import EditEventPage from "@/pages/organizer/EditEventPage"
 
 
 // ---------- STUDENT ----------
@@ -34,7 +35,7 @@ import StudentCalendar from "@/pages/student/StudentCalendar"
 import StudentEvents from "@/pages/student/StudentEvents"
 import StudentMessages from "@/pages/student/StudentMEssages"
 import StudentSettings from "@/pages/student/StudentSettings"
-
+import StudentProfilePage from "@/pages/student/StudentProfilePage"
 function App() {
   return (
     <BrowserRouter>
@@ -77,6 +78,7 @@ function App() {
         <Route path="add-event" element={<OrgEventPage />} />
         <Route path="statistics" element={<StatisticsPage />} />
         <Route path="/organizer/:organizerId/events/:eventId" element={<EventDetails />} />
+        <Route path="edit-event/:eventId" element={<EditEventPage />} />
 
         </Route>
 
@@ -101,6 +103,7 @@ function App() {
           <Route path="messages" element={<StudentMessages />} />
           {/* Settings */}
           <Route path="settings" element={<StudentSettings />} />
+          <Route path="profile" element={<StudentProfilePage />} />
         </Route>
 
         {/* ---------- CATCH ALL ---------- */}

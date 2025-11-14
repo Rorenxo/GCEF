@@ -44,7 +44,3 @@ export const DEPARTMENT_LABELS: Record<Department, string> = {
   CHTM: "College of Hospitality and Tourism Management",
   CBA: "College of Business Administration",
 }
-declare module "*.mp3" {
-  const src: string;
-  export default src;
-}

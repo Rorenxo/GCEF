@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useState, type FormEvent, useEffect } from "react"
+import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth"
+import { Checkbox } from "@/shared/components/ui/checkbox"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/shared/components/ui/button"
@@ -8,9 +10,15 @@ import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import gcef1 from '@/assets/gcef1.png';
-import BackgroundImage from '@/assets/gc.jpg'; 
-import { PasswordInput } from "@/shared/components/ui/passwordInput"
+import { PasswordInput } from "@/shared/components/ui/passwordInput";
+import { ArrowBigLeft, Loader2 } from "lucide-react";
+import BackgroundImage1 from '@/assets/gc.jpg'; 
+import BackgroundImage2 from '@/assets/gcef.jpg'; 
+import BackgroundImage3 from '@/assets/gclogo.png'; 
 
+const backgroundImages = [
+  BackgroundImage1, BackgroundImage2, BackgroundImage3
+];
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true)
@@ -21,18 +29,36 @@ export default function Auth() {
   const [password, setPassword] = useState("")
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
+  const [rememberMe, setRememberMe] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % backgroundImages.length);
+    }, 3000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     try {
       if (isLogin) {
+        const auth = getAuth();
         if (!email.endsWith("@gcadmin.edu.ph")) {
           alert("Only @gcadmin.edu.ph emails are allowed for admin login.")
           setIsLoading(false)
           return
         }
-        await signIn(email, password)
+
+        // Set persistence based on the "Remember me" checkbox
+        const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+        await setPersistence(auth, persistence);
+
+        await signIn(email, password);
         navigate("/admin") 
       } else {
 
@@ -56,16 +82,20 @@ export default function Auth() {
 
 
     <div 
-      className="relative flex min-h-screen items-center justify-center p-4"
-      style={{
-        backgroundImage: `url(${BackgroundImage})`, 
-        backgroundSize: 'cover',         
-        backgroundPosition: 'center',    
-        backgroundRepeat: 'no-repeat',
-      }}
+      className="relative flex min-h-screen items-center justify-center p-4 overflow-hidden"
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-
+      {backgroundImages.map((image, index) => (
+        <div
+          key={index}
+          className="absolute inset-0 h-full w-full bg-cover bg-center transition-opacity duration-1000"
+          style={{ 
+            backgroundImage: `url(${image})`,
+            opacity: index === currentImageIndex ? 1 : 0,
+          }}
+        />
+      ))}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md"></div>
+      
       <Button
         type="button"
         className="absolute top-4 left-4 bg-red-600 text-white hover:bg-red-700 z-20"
@@ -75,10 +105,11 @@ export default function Auth() {
           navigate("/")
         }}
       >
+        <ArrowBigLeft className ="mr-2 h4 w4" />
         Leave
       </Button>
 
-      <Card className="relative z-10 w-full max-w-md border-zinc-800 bg-zinc-100/80 transition-all duration-500">
+      <Card className="relative z-10 w-full max-w-md border-zinc-800 bg-zinc-100/80 shadow-2xl transition-all duration-500">
         <CardHeader className="space-y-1 text-center">
           <img src={gcef1} alt="GCEF Logo" className="mx-auto mb-4 h-24 w-24 object-contain" />
           <CardTitle className="text-2xl font-bold text-black">
@@ -102,7 +133,7 @@ export default function Auth() {
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required={!isLogin}
-                    className="border-zinc-800 bg-zinc-100 text-black"
+                    className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
                   />
                 </div>
                 <div className="space-y-2 w-1/2">
@@ -114,7 +145,7 @@ export default function Auth() {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required={!isLogin}
-                    className="border-zinc-800 bg-zinc-100 text-black"
+                    className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
                   />
                 </div>
               </div>
@@ -125,11 +156,11 @@ export default function Auth() {
               <Input
                 id="email"
                 type="email"  
-                placeholder="admin@gcadmin.edu.ph"
+                placeholder="juandelacruz@gcadmin.edu.ph"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-zinc-800 bg-zinc-100 text-black"
+                className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
               />
             </div>
             <div className="space-y-2">
@@ -140,14 +171,35 @@ export default function Auth() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
               />
+              {isLogin && (
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="rememberMe"
+                      checked={rememberMe}
+                      onCheckedChange={() => setRememberMe(!rememberMe)}
+                    />
+                    <Label htmlFor="rememberMe" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-zinc-700">Remember me</Label>
+                  </div>
+                  <a href="#" className="text-sm text-green-600 hover:underline">
+                    Forgot Password?
+                  </a>
+                </div>
+              )}
             </div>
             {error && (
               <div className="rounded-lg border border-red-900/50 bg-red-950/50 p-3 text-sm text-red-400">{error}</div>
             )}
 
             <Button type="submit" className="w-full bg-green-600 text-white hover:bg-green-700" disabled={isLoading}>
-              {isLoading ? (isLogin ? "Signing in..." : "Creating account...") : (isLogin ? "Sign In" : "Sign Up")}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isLogin ? "Signing in..." : "Creating account..."}
+                </>
+              ) : isLogin ? "Sign In" : "Sign Up"}
             </Button>
 
             <div className="text-center mt-2 text-sm">
@@ -176,14 +228,12 @@ export default function Auth() {
               )}
             </div>
 
-            {!isLogin && (
-              <p className="text-xs text-center text-zinc-700 mt-4">
-                By signing up, you agree to our{" "}
-                <a href="/terms" className="text-green-600 hover:underline">Terms</a> and{" "}
-                <a href="/terms" className="text-green-600 hover:underline">Privacy Policy</a> {" "}
-              </p>
-            )}
           </form>
+          <p className="mt-4 px-8 text-center text-xs text-zinc-500 pt-4">
+            By continuing, you agree to our{" "}
+            <a href="/terms" className="underline underline-offset-4 hover:text-primary">Terms of Service</a> and{" "}
+            <a href="/privacy" className="underline underline-offset-4 hover:text-primary">Privacy Policy</a>.
+          </p>
         </CardContent>
       </Card>
     </div>

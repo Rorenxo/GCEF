@@ -79,7 +79,7 @@ export default function StudentLayout() {
               {showProfileDropdown && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-border z-10 p-2">
                   <Link
-                    to="/student/profile"
+                    to="/student/settings"
                     onClick={() => setShowProfileDropdown(false)}
                     className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-green-100 rounded-md"
                   >

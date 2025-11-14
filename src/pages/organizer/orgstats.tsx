@@ -207,8 +207,6 @@ export default function StatisticsPage() {
             delay={0.3}
           />
         </div>
-
-        {/* Chart + List */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Event Trends Chart */}
           <motion.div
