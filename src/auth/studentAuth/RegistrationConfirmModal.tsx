@@ -18,6 +18,8 @@ interface RegistrationConfirmModalProps {
   registeredData: {
     firstName: string
     lastName: string
+    middleName?: string
+    suffix?: string
     email: string
     studentNumber: string
     department: string
@@ -151,6 +153,7 @@ export default function RegistrationConfirmModal({
                       </span>
                       <span className="font-semibold text-zinc-900 text-right">
                         {registeredData.firstName} {registeredData.lastName}
+                        {registeredData.suffix && `, ${registeredData.suffix}`}
                       </span>
                     </div>
 

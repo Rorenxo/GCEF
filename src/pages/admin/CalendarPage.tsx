@@ -99,14 +99,14 @@ export default function CalendarPage() {
           ))}
         </div>
 
-        <div className="grid grid-cols-7 min-h-[70vh]">
+        <div className="grid grid-cols-7">
           {emptyDays.map((_, i) => (
             <div key={`empty-${i}`} className="border-r border-b border-gray-100" />
           ))}
           {days.map((day) => {
             const eventsOnDay = getEventsForDay(day)
             return (
-              <div key={day} className="relative p-2 border-r border-b border-gray-100 flex flex-col gap-1">
+              <div key={day} className="relative p-2 border-r border-b border-gray-100 flex flex-col gap-1 h-36">
                 <span className="font-medium text-gray-700 text-sm">{day}</span>
                 <div className="flex-1 overflow-y-auto space-y-1">
                   {eventsOnDay.map((event) => (

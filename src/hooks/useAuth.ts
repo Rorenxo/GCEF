@@ -80,6 +80,8 @@ export function useAuth() {
   const signUp = async (
     firstName: string,
     lastName: string,
+    middleName: string,
+    suffix: string,
     email: string,
     password: string,
     additionalData: Record<string, any> = {},
@@ -115,6 +117,8 @@ export function useAuth() {
       await setDoc(doc(db, collection, createdUser.uid), {
         firstName,
         lastName,
+        middleName,
+        suffix,
         email,
         role,
         createdAt: new Date(),

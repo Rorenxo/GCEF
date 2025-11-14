@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom"
 interface StudentProfile {
   firstName: string
   lastName: string
+  middleName?: string
+  suffix?: string
   email: string
   studentNumber: string
   department: string
@@ -39,6 +41,8 @@ export default function StudentSettings() {
           setProfile({
             firstName: data.firstName || "",
             lastName: data.lastName || "",
+            middleName: data.middleName || "",
+            suffix: data.suffix || "",
             email: data.email || "",
             studentNumber: data.studentNumber || "",
             department: data.department || "",
@@ -125,6 +129,14 @@ export default function StudentSettings() {
             <div>
               <label className="block text-gray-600 text-sm font-medium mb-2">Last Name</label>
               <Input value={profile?.lastName || ""} onChange={(e) => handleInputChange("lastName", e.target.value)} className="bg-gray-50 border-gray-300 text-gray-900" />
+            </div>
+            <div>
+              <label className="block text-gray-600 text-sm font-medium mb-2">Middle Name</label>
+              <Input value={profile?.middleName || ""} onChange={(e) => handleInputChange("middleName", e.target.value)} className="bg-gray-50 border-gray-300 text-gray-900" />
+            </div>
+            <div>
+              <label className="block text-gray-600 text-sm font-medium mb-2">Suffix</label>
+              <Input value={profile?.suffix || ""} onChange={(e) => handleInputChange("suffix", e.target.value)} className="bg-gray-50 border-gray-300 text-gray-900" />
             </div>
             <div>
               <label className="block text-gray-600 text-sm font-medium mb-2">Department</label>

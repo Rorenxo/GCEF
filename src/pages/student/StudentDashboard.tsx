@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/utils";
 import type { Department } from "@/types";
 
 const departmentColors: Record<Department, string> = {
+  ALL: "bg-gray-500",
   CCS: "bg-orange-500",
   CEAS: "bg-blue-500",
   CAHS: "bg-red-500",

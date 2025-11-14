@@ -29,6 +29,8 @@ export default function Auth() {
   const [password, setPassword] = useState("")
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
+  const [middleName, setMiddleName] = useState("")
+  const [suffix, setSuffix] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -67,7 +69,7 @@ export default function Auth() {
           setIsLoading(false)
           return
         }
-        await signUp(firstName, lastName, email, password)
+        await signUp(firstName, lastName, middleName, suffix, email, password)
         navigate("/login")
         setIsLogin(true)
       }

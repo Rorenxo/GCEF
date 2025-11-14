@@ -33,6 +33,25 @@ import { ArrowBigLeft, Loader2 } from "lucide-react"
 
 const backgroundImages = [BackgroundImage1, BackgroundImage2, BackgroundImage3]
 
+const coursesByDepartment: Record<string, string[]> = {
+  CAHS: ["BSN", "BSM"],
+  CBA: ["BSA", "BSBA-FM", "BSBA-HRM", "BSBA-MM", "BSCA"],
+  CCS: ["BSCS", "BSEMC", "BSIT"],
+  CEAS: [
+    "BACOMM",
+    "BECED",
+    "BCAED",
+    "BPED",
+    "BEED",
+    "BSED-EN",
+    "BSED-FIL",
+    "BSED-MATH",  
+    "BSED-SS",
+    "BSED-SCI",
+  ],
+  CHTM: ["BSHM", "BSTM"],
+}
+
 export default function StudentLogin() {
   const [isLogin, setIsLogin] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
@@ -49,12 +68,13 @@ export default function StudentLogin() {
   const [password, setPassword] = useState("")
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
+  const [middleName, setMiddleName] = useState("")
+  const [suffix, setSuffix] = useState("")
   const [studentNumber, setStudentNumber] = useState("")
   const [department, setDepartment] = useState("")
   const [course, setCourse] = useState("")
   const [yearLevel, setYearLevel] = useState("")
 
-  // Background slideshow
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImageIndex(
@@ -63,6 +83,11 @@ export default function StudentLogin() {
     }, 7000)
     return () => clearInterval(timer)
   }, [])
+
+  useEffect(() => {
+    setCourse("")
+  }, [department])
+
 
   const handleNextStep = () => {
     if (!email.endsWith("@gordoncollege.edu.ph")) {
@@ -96,7 +121,6 @@ export default function StudentLogin() {
         await signIn(email, password)
         navigate("/student")
       } else {
-        // Instead of creating the account immediately, just prepare data for confirmation
         if (!email.endsWith("@gordoncollege.edu.ph")) {
           alert("Only Gordon College student accounts are allowed.")
           setIsLoading(false)
@@ -106,6 +130,8 @@ export default function StudentLogin() {
         setRegisteredData({
           firstName,
           lastName,
+          middleName,
+          suffix,
           email,
           password,
           studentNumber,
@@ -113,8 +139,6 @@ export default function StudentLogin() {
           course,
           yearLevel,
         })
-
-        // Show confirmation modal BEFORE creating account
         setShowConfirmModal(true)
       }
     } catch (err) {
@@ -131,6 +155,8 @@ export default function StudentLogin() {
     const userCredential = await signUp(
       registeredData.firstName,
       registeredData.lastName, 
+      registeredData.middleName,
+      registeredData.suffix,
       registeredData.email, 
       registeredData.password, 
       { 
@@ -147,6 +173,8 @@ export default function StudentLogin() {
     setPassword("")
     setFirstName("")
     setLastName("")
+    setMiddleName("")
+    setSuffix("")
     setStudentNumber("")
     setDepartment("")
     setCourse("")
@@ -393,6 +421,7 @@ export default function StudentLogin() {
                         <Input
                           id="firstName"
                           value={firstName}
+                          placeholder="Juan"
                           onChange={(e) => setFirstName(e.target.value)}
                           required
                           className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
@@ -405,8 +434,35 @@ export default function StudentLogin() {
                         <Input
                           id="lastName"
                           value={lastName}
+                          placeholder="Dela Cruz"
                           onChange={(e) => setLastName(e.target.value)}
                           required
+                          className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="w-1/2 space-y-2">
+                        <Label htmlFor="middleName" className="text-zinc-900">
+                          Middle Name <span className="text-xs text-zinc-500">(Optional)</span>
+                        </Label>
+                        <Input
+                          id="middleName"
+                          value={middleName}
+                          placeholder="Santos"
+                          onChange={(e) => setMiddleName(e.target.value)}
+                          className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
+                        />
+                      </div>
+                      <div className="w-1/2 space-y-2">
+                        <Label htmlFor="suffix" className="text-zinc-900">
+                          Suffix <span className="text-xs text-zinc-500">(Optional)</span>
+                        </Label>
+                        <Input
+                          id="suffix"
+                          value={suffix}
+                          placeholder="Jr."
+                          onChange={(e) => setSuffix(e.target.value)}
                           className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
                         />
                       </div>
@@ -417,6 +473,7 @@ export default function StudentLogin() {
                         Student Number
                       </Label>
                       <Input
+                        placeholder="2023-XXXXX-XX"
                         id="studentNumber"
                         value={studentNumber}
                         onChange={(e) => setStudentNumber(e.target.value)}
@@ -469,13 +526,22 @@ export default function StudentLogin() {
                       <Label htmlFor="course" className="text-zinc-900">
                         Course
                       </Label>
-                      <Input
+                      <select
                         id="course"
                         value={course}
                         onChange={(e) => setCourse(e.target.value)}
                         required
-                        className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
-                      />
+                        disabled={!department}
+                        className="w-full p-2 border-zinc-400 bg-zinc-100 text-black rounded-md focus:border-green-500 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <option value="">
+                          {department ? "Select Course..." : "Select Department First"}
+                        </option>
+                        {department &&
+                          coursesByDepartment[department]?.map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                      </select>
                     </div>
 
                     <div className="flex gap-2 mt-4">

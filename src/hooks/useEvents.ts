@@ -18,7 +18,8 @@ import { getAuth } from "firebase/auth"
 import { db } from "@/lib/firebase"
 import type { Event, EventFormData } from "@/types"
 
-export function useEvents() {
+export function useEvents(options: { scope?: "all" | "user" } = {}) {
+  const { scope = "user" } = options
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -27,25 +28,28 @@ export function useEvents() {
     const auth = getAuth()
     const user = auth.currentUser
 
-    if (!user) {
-      setLoading(false)
-      setError("User not authenticated")
-      return
-    }
-
     const fetchEvents = async () => {
       try {
-        const adminDoc = await getDoc(doc(db, "admins", user.uid))
         let q
 
-        if (adminDoc.exists()) {
+        if (scope === "all") {
           q = query(collection(db, "events"), orderBy("startDate", "desc"))
         } else {
-          q = query(
-            collection(db, "events"),
-            where("createdBy", "==", user.uid),
-            orderBy("startDate", "desc")
-          )
+          if (!user) {
+            setLoading(false)
+            setError("User not authenticated for this scope.")
+            return
+          }
+          const adminDoc = await getDoc(doc(db, "admins", user.uid))
+          if (adminDoc.exists()) {
+            q = query(collection(db, "events"), orderBy("startDate", "desc"))
+          } else {
+            q = query(
+              collection(db, "events"),
+              where("createdBy", "==", user.uid),
+              orderBy("startDate", "desc")
+            )
+          }
         }
 
         const unsubscribe = onSnapshot(
@@ -79,7 +83,7 @@ export function useEvents() {
     }
 
     fetchEvents()
-  }, [])
+  }, [scope])
 
   const addEvent = async (eventData: EventFormData, imageUrl?: string) => {
     try {

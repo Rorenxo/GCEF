@@ -12,6 +12,8 @@ import { doc, getDoc } from "firebase/firestore"
 interface StudentProfile {
   firstName: string
   lastName: string
+  middleName?: string
+  suffix?: string
   email: string
   studentNumber: string
   department: string
@@ -36,6 +38,8 @@ export default function StudentProfilePage() {
           setProfile({
             firstName: data.firstName || "",
             lastName: data.lastName || "",
+            middleName: data.middleName || "",
+            suffix: data.suffix || "",
             email: data.email || "",
             studentNumber: data.studentNumber || "",
             department: data.department || "",
@@ -86,7 +90,7 @@ export default function StudentProfilePage() {
             <div className="bg-white border border-gray-200 rounded-2xl p-8 sticky top-8 shadow-sm">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {profile?.firstName} {profile?.lastName}
+                  {`${profile?.firstName || ''} ${profile?.middleName ? `${profile.middleName.charAt(0)}. ` : ''}${profile?.lastName || ''}${profile?.suffix ? `, ${profile.suffix}` : ''}`}
                 </h2>
                 <p className="text-green-600 text-sm font-semibold mt-2">{profile?.email}</p>
               </div>
@@ -110,6 +114,22 @@ export default function StudentProfilePage() {
               <h3 className="text-2xl font-bold text-gray-900 mb-8">Student Profile Details</h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                  <label className="block text-gray-600 text-sm font-medium mb-2">First Name</label>
+                  <p className="text-gray-900 font-semibold text-lg">{profile?.firstName}</p>
+                </div>
+                <div>
+                  <label className="block text-gray-600 text-sm font-medium mb-2">Last Name</label>
+                  <p className="text-gray-900 font-semibold text-lg">{profile?.lastName}</p>
+                </div>
+                <div>
+                  <label className="block text-gray-600 text-sm font-medium mb-2">Middle Name</label>
+                  <p className="text-gray-900 font-semibold text-lg">{profile?.middleName || "N/A"}</p>
+                </div>
+                <div>
+                  <label className="block text-gray-600 text-sm font-medium mb-2">Suffix</label>
+                  <p className="text-gray-900 font-semibold text-lg">{profile?.suffix || "N/A"}</p>
+                </div>
                 <div>
                   <label className="block text-gray-600 text-sm font-medium mb-2">Student Number</label>
                   <p className="text-gray-900 font-semibold text-lg">{profile?.studentNumber}</p>

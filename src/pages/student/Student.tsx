@@ -1,6 +1,6 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { useEffect, useState, useRef } from "react"
 import { Link } from "react-router-dom"
 import {collection,query,orderBy,onSnapshot,doc,updateDoc,arrayUnion,arrayRemove,addDoc,serverTimestamp,} from "firebase/firestore"
@@ -8,25 +8,27 @@ import { db } from "@/lib/firebase"
 import useAuth from "@/shared/components/useStudentAuth"
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import {Calendar,MapPin,Heart,MessageCircle,Send,ChevronLeft,ChevronRight,Search,Bell,User,ArrowRight,ChevronDown,Eye,Settings} from "lucide-react"
-import { format } from "date-fns"
+import { format, isSameDay } from "date-fns"
+import { Timestamp } from "firebase/firestore"
 
 type EventType = {
   id: string
   eventName?: string
   department?: string
   location?: string
-  startDate?: any
+  startDate: Date
+  endDate: Date
   professor?: string
   description?: string
   imageUrl?: string
-  likes?: string[]
+  hearts?: string[]
 }
 
 type CommentType = {
   id: string
   authorName: string
   text: string
-  createdAt: any
+  createdAt: Timestamp
 }
 
 // colors 
@@ -72,8 +74,16 @@ export default function StudentFeed() {
   useEffect(() => {
     const q = query(collection(db, "events"), orderBy("startDate", "desc"))
     const unsub = onSnapshot(q, (snap) => {
-      const arr = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }))
-      setEvents(arr)
+      const fetchedEvents = snap.docs.map((d) => {
+        const data = d.data()
+        return {
+          id: d.id,
+          ...data,
+          startDate: data.startDate?.toDate() ?? new Date(),
+          endDate: data.endDate?.toDate() ?? new Date(),
+        } as EventType
+      })
+      setEvents(fetchedEvents)
       setLoading(false)
     })
     return () => unsub()
@@ -95,13 +105,27 @@ export default function StudentFeed() {
   }, [profileDropdownRef])
 
 
-  const toggleLike = async (eventId: string, likes: string[] = []) => {
+  const toggleLike = async (eventId: string) => {
     if (!user) return alert("Please sign in to like posts")
+      
+    setEvents(prevEvents =>
+      prevEvents.map(event => {
+        if (event.id === eventId) {
+          const currentHearts = event.hearts || []
+          const isLiked = currentHearts.includes(user.uid)
+          const newHearts = isLiked
+            ? currentHearts.filter(uid => uid !== user.uid)
+            : [...currentHearts, user.uid]
+          return { ...event, hearts: newHearts }
+        }
+        return event
+      })
+    )
+
     const eventRef = doc(db, "events", eventId)
-    const alreadyLiked = likes.includes(user.uid)
-    await updateDoc(eventRef, {
-      likes: alreadyLiked ? arrayRemove(user.uid) : arrayUnion(user.uid),
-    })
+    const eventToUpdate = events.find(e => e.id === eventId)
+    const alreadyLiked = eventToUpdate?.hearts?.includes(user.uid)
+    await updateDoc(eventRef, { hearts: alreadyLiked ? arrayRemove(user.uid) : arrayUnion(user.uid) })
   }
 
   const addComment = async (eventId: string, text: string) => {
@@ -143,18 +167,12 @@ export default function StudentFeed() {
   const monthName = format(currentDate, "MMMM yyyy")
 
   const getEventsForDay = (day: number) => {
-    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-    return events.filter((event) => {
-      const eventDate = event.startDate?.toDate?.() ?? new Date(event.startDate)
-      return format(eventDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
-    })
+    const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    return events.filter((event) => isSameDay(event.startDate, date));
   }
 
   const eventsForSelectedDay = selectedDay
-    ? events.filter((event) => {
-        const eventDate = event.startDate?.toDate?.() ?? new Date(event.startDate)
-        return format(eventDate, 'yyyy-MM-dd') === format(selectedDay, 'yyyy-MM-dd')
-      })
+    ? events.filter((event) => isSameDay(event.startDate, selectedDay))
     : []
 
   const filteredEvents = selectedDept === "ALL" ? events : events.filter((event) => event.department === selectedDept)
@@ -171,20 +189,11 @@ export default function StudentFeed() {
   const sevenDaysFromNow = new Date(today)
   sevenDaysFromNow.setDate(today.getDate() + 7)
 
-  const todaysEvents = searchFilteredEvents.filter(event => {
-    const eventDate = event.startDate?.toDate?.() ?? new Date(event.startDate)
-    return eventDate >= today && eventDate <= endOfToday
-  })
+  const todaysEvents = searchFilteredEvents.filter(event => event.startDate >= today && event.startDate <= endOfToday);
 
-  const upcomingEvents = searchFilteredEvents.filter(event => {
-    const eventDate = event.startDate?.toDate?.() ?? new Date(event.startDate)
-    return eventDate > endOfToday && eventDate <= sevenDaysFromNow
-  })
+  const upcomingEvents = searchFilteredEvents.filter(event => event.startDate > endOfToday && event.startDate <= sevenDaysFromNow);
 
-  const pastEvents = searchFilteredEvents.filter(event => {
-    const eventDate = event.startDate?.toDate?.() ?? new Date(event.startDate)
-    return eventDate < today
-  })
+  const pastEvents = searchFilteredEvents.filter(event => event.startDate < today);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -224,7 +233,8 @@ export default function StudentFeed() {
               Filter
             </button>
           </div>
-          {showMobileFilters && ( 
+          <AnimatePresence>
+          {showMobileFilters && (
             <div className="lg:hidden absolute right-4 mt-2 w-48 bg-white border rounded-md shadow-lg z-10 p-2 space-y-1">
               {["ALL", "CCS", "CEAS", "CAHS", "CHTM", "CBA"].map((dept) => (
                 <button
@@ -241,6 +251,7 @@ export default function StudentFeed() {
               ))}
             </div>
           )}
+          </AnimatePresence>
         </div>
 
         {/* Events Content */}
@@ -441,7 +452,7 @@ export default function StudentFeed() {
         <div className="bg-white rounded-2xl p-6">
           <h3 className="font-semibold text-gray-900 mb-4">
             {selectedDay ? `Events on ${format(selectedDay, "MMMM d, yyyy")}` : "Select a date"}
-          </h3>
+          </h3> 
           {selectedDay ? (
             eventsForSelectedDay.length > 0 ? (
               <div className="space-y-3">
@@ -487,16 +498,16 @@ function EventCard({
   event,
   onLike,
   onComment,
-  currentUser,
 }: {
-  event: EventType
-  onLike: (id: string, likes?: string[]) => void
+  event: EventType;
+  onLike: (id: string) => void;
   onComment: (id: string, text: string) => void
   currentUser: any
 }) {
   const [comment, setComment] = useState("")
   const [comments, setComments] = useState<CommentType[]>([])
   const [showComments, setShowComments] = useState(false)
+  const { user } = useAuth()
 
   useEffect(() => {
     const q = query(collection(db, "events", event.id, "comments"), orderBy("createdAt", "asc"))
@@ -507,16 +518,11 @@ function EventCard({
     return () => unsub()
   }, [event.id])
 
-  const likes = event.likes ?? []
-  const liked = currentUser && likes.includes(currentUser.uid)
+  const hearts = event.hearts ?? []
+  const liked = user && hearts.includes(user.uid)
 
   let dateStr = "Invalid Date"
-  try {
-    const dateValue = event.startDate?.toDate?.() ?? new Date(event.startDate)
-    if (!isNaN(dateValue)) dateStr = format(dateValue, "PPP")
-  } catch {
-    dateStr = "Invalid Date"
-  }
+  if (event.startDate && !isNaN(event.startDate.getTime())) dateStr = format(event.startDate, "PPP")
 
   return (
     <Card className="bg-card border-border hover:shadow-xl transition-all duration-300 overflow-hidden group flex flex-col h-full">
@@ -560,7 +566,7 @@ function EventCard({
 
         <div className="flex items-center gap-2 pt-3 mt-auto">
           <button
-            onClick={() => onLike(event.id, likes)}
+            onClick={() => onLike(event.id)}
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 group/like hover:bg-muted/40"
           >
             <motion.div
@@ -575,7 +581,7 @@ function EventCard({
                 }`}
               />
             </motion.div>
-            <span className={`${liked ? "text-primary font-semibold" : "text-muted-foreground"}`}>{likes.length}</span>
+            <span className={`${liked ? "text-primary font-semibold" : "text-muted-foreground"}`}>{hearts.length}</span>
           </button>
 
           <button

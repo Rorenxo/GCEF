@@ -20,14 +20,9 @@ export default function AddEventPage() {
       if (data.image instanceof File) {
         imageUrl = await uploadImage(data.image, { folder: "events", maxSizeMB: 5 })
       }
-//@ts-ignore
+    //@ts-ignore
       await addEvent(data, imageUrl)
-
-      // SUCCESS: remain on the same page and show confirmation.
-      // Avoid navigating to a public route which may trigger ProtectedRoute -> landing redirect.
       alert("Event created successfully. You will remain on this page.")
-      // If you prefer to go to admin events list use the admin route:
-      // navigate("/admin/events")
     } catch (error: any) {
       console.error("Failed to add event:", error)
       alert(error.message || "Failed to add event. Please try again.")
