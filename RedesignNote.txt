@@ -1,0 +1,72 @@
+  ================================================================
+  TODO: REDESIGNING GCEF CHECKLIST
+  ================================================================
+
+  LOGIN SCREEN
+  ----------------------------------------------------------------
+
+  [ ] Visuals and Background
+      [ safwe] Blur Background: Increase the background image blur to make the login box the main focus.
+      [ ] Overlay Color/Gradient: Add a semi-transparent overlay using an institutional color.
+      [ ] Elevate Login Box: Add a more pronounced box-shadow to the login container to make it pop.
+
+  [ ] Header/Branding
+      [ ] Logo Clarity/Size: Make the institutional logo larger and clearer.
+      [ ] Official Title: Change "GCEF Student Login" to a more formal title like "Gordon College Enrollment & Faculty System".
+
+  [ ] Input Fields and Labels
+      [ ] Label Placement: Move labels ("Student Email", "Password") above their respective fields.
+      [ ] Use placeholders as examples (e.g., "juandelacruz@gordoncollege.edu.ph").
+      [ ] Modern Input Fields: Use a light gray border that changes to an institutional accent color (blue/green/yellow) on focus (active state).
+
+  [ ] Security and Convenience
+      [ ] Forgot Password Link: Add a "Forgot Password?" link for user recovery.
+      [ ] "Remember Me" Checkbox: Add a checkbox to save user credentials.
+      [ ] Legal Links: Add small links for "Privacy Policy" and "Terms of Use" at the bottom.
+
+  [ ] Call-to-Action (Button)
+      [ ] Button Hover State: Implement a slight color change on hover (e.g., a darker shade of green).
+      [ ] Loading State: When clicked, the button text should change to "Signing In..." and show a loading spinner.
+
+  [ ] Engagement
+      [ ] Dynamic Background: Implement a rotating carousel/slideshow of high-quality campus photos for the background.
+
+  ----------------------------------------------------------------
+  REGISTER SCREEN
+  ----------------------------------------------------------------
+
+  [ ] Critical Fields (for QR/Attendance)
+      [ ] College/Department (Dropdown): Add for user grouping and event segregation.
+      [ ] Course (Dropdown): Add for more specific event targeting.
+      [ ] Year Level (Dropdown): Add for demographic analysis of attendees.
+      [ ] Student Number: Add as a unique identifier for QR code generation and record tracking.
+
+  [ ] UI/UX and Layout
+      [ ] Multi-Step Form: Divide the form into two steps (e.g., Step 1: Account Info, Step 2: Personal Details) to prevent user overload.
+      [ ] Field Grouping: Group related fields (like College and Year Level) in the same row.
+      [ ] Placeholder Format: Use clear placeholders that show the expected format (e.g., Student Number: "2023-XXXXX-XX").
+
+  [ ] Password
+      [ ] Password Strength Indicator: Add a visual cue (e.g., a color-coded bar) to show password strength (Weak, Medium, Strong).
+
+  [ ] Context and Assurance
+      [ ] QR Code Hint: Add a small note: "Your Student ID Number will be used to generate your unique QR Code for event attendance."
+      [ ] Email Contextual Tip: Add helper text under the email field: "Please use your official @gordoncollege.edu.ph email address."
+
+  [ ] Navigation
+      [ ] Button Text: Change "Sign Up" to "Next" for the first step and "Complete Registration" for the final step.
+
+  ----------------------------------------------------------------
+  HOMEPAGE UI
+  ----------------------------------------------------------------
+  [ safe ] Header Card: Welcome message or greetings 
+  [ ] theme for the header 
+  [safe] Quick tool on the cards
+  [ ] 
+  [ ]
+  [ ]
+  [ ]
+  ----------------------------------------------------------------
+  LANDING PAGE
+  ----------------------------------------------------------------
+  (No specific tasks yet)

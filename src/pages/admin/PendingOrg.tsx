@@ -14,20 +14,8 @@
     } from "firebase/firestore";
     import { db } from "@/lib/firebase";
     import { Button } from "@/shared/components/ui/button";
-    import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    } from "@/shared/components/ui/card";
-    import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-    } from "@/shared/components/ui/table";
+    import {Card,CardContent,CardHeader,CardTitle,} from "@/shared/components/ui/card";
+    import {Table,TableBody,TableCell,TableHead,TableHeader,TableRow,} from "@/shared/components/ui/table";
     import { Check, X, History } from "lucide-react";
 
     interface PendingOrganizer {
@@ -63,12 +51,9 @@
         setActionLoading((prev) => ({ ...prev, [organizer.id]: true }));
 
         try {
-            // Validate required fields first
             if (!organizer.firstName || !organizer.lastName || !organizer.email) {
             throw new Error("Organizer data is incomplete.");
             }
-
-            // 1️⃣ Add the approved organizer to "organizers" collection
             await addDoc(collection(db, "organizers"), {
             firstName: organizer.firstName,
             lastName: organizer.lastName,
@@ -77,11 +62,8 @@
             status: "approved",
             createdAt: new Date(),
             });
-
-            // 2️⃣ Delete the organizer from "pendingOrganizers"
             await deleteDoc(doc(db, "pendingOrganizers", organizer.id));
 
-            // 3️⃣ Notify success
             alert("Organizer approved successfully!");
         } catch (error: any) {
             console.error("Approval failed:", error);

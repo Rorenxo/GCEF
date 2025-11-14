@@ -22,28 +22,12 @@ export default function OrgEventPage() {
 
     setIsLoading(true)
     try {
-      let imageUrls: string[] = []
-      //@ts-ignore
-      if (data.images && Array.isArray(data.images)) {
-        //@ts-ignore
-        for (const file of data.images) {
-          if (file instanceof File) {
-            const url = await uploadImage(file, {
-              folder: "events",
-              maxSizeMB: 5,
-            })
-            imageUrls.push(url)
-          }
-        }
-      } else if (data.image instanceof File) {
-        const url = await uploadImage(data.image, {
-          folder: "events",
-          maxSizeMB: 5,
-        })
-        imageUrls = [url]
+      let imageUrl: string | undefined
+      if (data.image instanceof File) {
+        imageUrl = await uploadImage(data.image, { folder: "events", maxSizeMB: 5 })
       }
 
-      await addEvent(data, imageUrls)
+      await addEvent(data, imageUrl)
       alert("Event created successfully!")
       navigate("/organizer") 
     } catch (error: any) {

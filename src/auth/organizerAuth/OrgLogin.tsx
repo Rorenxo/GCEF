@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, type FormEvent } from "react"
+import { useState, type FormEvent, useEffect } from "react"
+import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth"
+import { Checkbox } from "@/shared/components/ui/checkbox"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/shared/components/ui/button"
@@ -8,11 +10,17 @@ import { Input } from "@/shared/components/ui/input"
 import { Label } from "@/shared/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import gcef1 from '@/assets/gcef1.png';
-import BackgroundImage from '@/assets/gc.jpg';
 import { PasswordInput } from "@/shared/components/ui/passwordInput"
 import { collection, addDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase"
+import { ArrowBigLeft, Loader2 } from "lucide-react"
+import BackgroundImage1 from '@/assets/gcef.jpg'; 
+import BackgroundImage2 from '@/assets/gc.jpg'; 
+import BackgroundImage3 from '@/assets/gclogo.png'; 
 
+const backgroundImages = [
+  BackgroundImage1, BackgroundImage2, BackgroundImage3
+];
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
@@ -24,6 +32,22 @@ export default function Auth() {
   const [lastName, setLastName] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [formError, setFormError] = useState("") 
+  const [department, setDepartment] = useState("")
+  const [course, setCourse] = useState("")
+  const [yearLevel, setYearLevel] = useState("")
+  const [studentNumber, setStudentNumber] = useState("")
+  const [rememberMe, setRememberMe] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % backgroundImages.length);
+    }, 3000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
 
 
   const handleSubmit = async (e: FormEvent) => {
@@ -40,7 +64,12 @@ export default function Auth() {
 
 
       if (isLogin) {
-        await signIn(email, password)
+        const auth = getAuth();
+        // Set persistence based on the "Remember me" checkbox
+        const persistence = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+        await setPersistence(auth, persistence);
+
+        await signIn(email, password);
         navigate("/organizer")
       } else {
         await addDoc(collection(db, "pendingOrganizers"), {
@@ -48,6 +77,10 @@ export default function Auth() {
           lastName,
           email,
           password,
+          department,
+          course,
+          yearLevel,
+          studentNumber,
           status: "pending",
         });
         setIsSubmitted(true);
@@ -64,15 +97,19 @@ export default function Auth() {
 
   return (
     <div
-      className="relative flex min-h-screen items-center justify-center p-4"
-      style={{
-        backgroundImage: `url(${BackgroundImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
+      className="relative flex min-h-screen items-center justify-center p-4 overflow-hidden"
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+      {backgroundImages.map((image, index) => (
+        <div
+          key={index}
+          className="absolute inset-0 h-full w-full bg-cover bg-center transition-opacity duration-1000"
+          style={{ 
+            backgroundImage: `url(${image})`,
+            opacity: index === currentImageIndex ? 1 : 0,
+          }}
+        />
+      ))}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md"></div>
       
       <Button
         type="button"
@@ -83,6 +120,7 @@ export default function Auth() {
           navigate("/")
         }}
       >
+        <ArrowBigLeft className="h-4 w-4" />
         Leave
       </Button>
 
@@ -115,7 +153,7 @@ export default function Auth() {
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       required
-                      className="border-zinc-800 bg-zinc-100 text-black"
+                      className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
                     />
                   </div>
                   <div className="space-y-2 w-1/2">
@@ -127,8 +165,59 @@ export default function Auth() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       required
-                      className="border-zinc-800 bg-zinc-100 text-black"
+                      className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
                     />
+                  </div>
+                </div>
+              )}
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="studentNumber" className="text-zinc-900">Student Number</Label>
+                  <Input
+                    id="studentNumber"
+                    type="text"
+                    placeholder="2023-XXXXX-XX"
+                    value={studentNumber}
+                    onChange={(e) => setStudentNumber(e.target.value)}
+                    required
+                    className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
+                  />
+                </div>
+              )}
+              {!isLogin && (
+                <div className="flex gap-2">
+                  <div className="space-y-2 w-1/2">
+                    <Label htmlFor="department" className="text-zinc-900">College/Department</Label>
+                    <select
+                      id="department"
+                      value={department}
+                      onChange={(e) => setDepartment(e.target.value)}
+                      required
+                      className="w-full p-2 border-zinc-400 bg-zinc-100 text-black rounded-md focus:border-green-500 focus:ring-green-500"
+                    >
+                      <option value="">Select Department</option>
+                      <option value="CCS">CCS</option>
+                      <option value="CEAS">CEAS</option>
+                      <option value="CHTM">CHTM</option>
+                      <option value="CBA">CBA</option>
+                      <option value="CAHS">CAHS</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2 w-1/2">
+                    <Label htmlFor="yearLevel" className="text-zinc-900">Year Level</Label>
+                    <select
+                      id="yearLevel"
+                      value={yearLevel}
+                      onChange={(e) => setYearLevel(e.target.value)}
+                      required
+                      className="w-full p-2 border-zinc-400 bg-zinc-100 text-black rounded-md focus:border-green-500 focus:ring-green-500"
+                    >
+                      <option value="">Select Year</option>
+                      <option value="1st Year">1st Year</option>
+                      <option value="2nd Year">2nd Year</option>
+                      <option value="3rd Year">3rd Year</option>
+                      <option value="4th Year">4th Year</option>
+                    </select>
                   </div>
                 </div>
               )}
@@ -138,11 +227,11 @@ export default function Auth() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@gcorganizer.edu.ph"
+                  placeholder="juandelacruz@gcorganizer.edu.ph"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="border-zinc-800 bg-zinc-100 text-black"
+                  className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
                 />
               </div>
               <div className="space-y-2">
@@ -153,7 +242,23 @@ export default function Auth() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
                 />
+                {isLogin && (
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="rememberMe"
+                        checked={rememberMe}
+                        onCheckedChange={() => setRememberMe(!rememberMe)}
+                      />
+                      <Label htmlFor="rememberMe" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-zinc-700">Remember me</Label>
+                    </div>
+                    <a href="#" className="text-sm text-green-600 hover:underline">
+                      Forgot Password?
+                    </a>
+                  </div>
+                )}
               </div>
 
               {formError && (
@@ -165,7 +270,12 @@ export default function Auth() {
               )}
 
               <Button type="submit" className="w-full bg-green-600 text-white hover:bg-green-700" disabled={isLoading}>
-                {isLoading ? (isLogin ? "Signing in..." : "Submitting for approval...") : (isLogin ? "Sign In" : "Register")}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {isLogin ? "Signing in..." : "Submitting..."}
+                  </>
+                ) : isLogin ? "Sign In" : "Register"}
               </Button>
 
               <div className="text-center mt-2 text-sm">
@@ -194,16 +304,13 @@ export default function Auth() {
                 )}
               </div>
 
-              {!isLogin && (
-                <p className="text-xs text-center text-zinc-700 mt-4">
-                  By signing up, you agree to our{" "}
-                  <a href="/terms" className="text-green-600 hover:underline">Terms</a>,{" "}
-                  <a href="/terms" className="text-green-600 hover:underline">Privacy Policy</a> and{" "}
-                  <a href="/auth/terms" className="text-green-600 hover:underline">Cookies Policy</a>.
-                </p>
-              )}
             </form>
           )}
+          <p className="mt-4 px-8 text-center text-xs text-zinc-500">
+            By continuing, you agree to our{" "}
+            <a href="/terms" className="underline underline-offset-4 hover:text-primary">Terms of Service</a> and{" "}
+            <a href="/privacy" className="underline underline-offset-4 hover:text-primary">Privacy Policy</a>.
+          </p>
         </CardContent>
       </Card>
     </div>

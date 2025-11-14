@@ -39,7 +39,7 @@ export default function StudentCalendar() {
         onEventClick={handleEventClick}
       />
 
-      {/* Modal for event details */}
+      {/* Modal for event details */} 
       <EventModal
         event={selectedEvent}
         open={modalOpen}

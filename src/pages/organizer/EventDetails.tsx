@@ -118,9 +118,9 @@ export default function EventDetails() {
               <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
                 {event.department}
               </span>
-              <span>📍 {event.location}</span>
+              <span> {event.location}</span>
               <span>
-                🗓 {format(event.startDate, "MMM d, yyyy")} -{" "}
+                 {format(event.startDate, "MMM d, yyyy")} -{" "}
                 {format(event.endDate, "MMM d, yyyy")}
               </span>
             </div>
@@ -150,9 +150,9 @@ export default function EventDetails() {
               <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
                 {event.department}
               </span>
-              <span>📍 {event.location}</span>
+              <span> {event.location}</span>
               <span>
-                🗓 {format(event.startDate, "MMM d, yyyy")} -{" "}
+                 {format(event.startDate, "MMM d, yyyy")} -{" "}
                 {format(event.endDate, "MMM d, yyyy")}
               </span>
             </div>

@@ -81,7 +81,7 @@ export function useEvents() {
     fetchEvents()
   }, [])
 
-  const addEvent = async (eventData: EventFormData, imageUrls?: string[]) => {
+  const addEvent = async (eventData: EventFormData, imageUrl?: string) => {
     try {
       const auth = getAuth()
       const user = auth.currentUser
@@ -97,7 +97,7 @@ export function useEvents() {
         location: eventData.location,
         professor: eventData.professor,
         department: eventData.department,
-        imageUrls: imageUrls || [],
+        imageUrl: imageUrl || null,
         createdBy: user.uid,
         createdAt: now,
         updatedAt: now,
@@ -107,7 +107,7 @@ export function useEvents() {
     }
   }
 
-  const updateEvent = async (id: string, eventData: Partial<EventFormData>, imageUrls?: string[]) => {
+  const updateEvent = async (id: string, eventData: Partial<EventFormData>, imageUrl?: string) => {
     try {
       const eventRef = doc(db, "events", id)
       const updateData: any = {
@@ -121,8 +121,8 @@ export function useEvents() {
       if (eventData.endDate) {
         updateData.endDate = Timestamp.fromDate(new Date(eventData.endDate))
       }
-      if (imageUrls !== undefined) {
-        updateData.imageUrls = imageUrls
+      if (imageUrl !== undefined) {
+        updateData.imageUrl = imageUrl
       }
 
       await updateDoc(eventRef, updateData)

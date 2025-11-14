@@ -16,12 +16,16 @@ import gcef1 from "@/assets/gcef1.png";
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
-  { name: "Feed", href: "/student", icon: Home },
+  { name: "Home", href: "/student", icon: Home },
+  { name: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },  
   { name: "Calendar", href: "/student/calendar", icon: Calendar },
 ];
 
-export default function StudentSidebar() {
+interface StudentSidebarProps {
+  closeSidebar?: () => void;
+}
+
+export default function StudentSidebar({ closeSidebar }: StudentSidebarProps) {
   const handleLogout = async () => {
     try {
       await auth.signOut();
@@ -46,7 +50,7 @@ export default function StudentSidebar() {
         />
         <div>
           <h1 className="text-lg font-bold text-white leading-tight">
-            GCEF Student
+            Student
           </h1>
           <p className="text-xs text-zinc-300">Campus Feed</p>
         </div>
@@ -59,6 +63,7 @@ export default function StudentSidebar() {
             key={item.name}
             to={item.href}
             end={item.href === "/student"}
+            onClick={closeSidebar}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",

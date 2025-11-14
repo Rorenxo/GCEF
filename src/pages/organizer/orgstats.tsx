@@ -9,6 +9,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Cell,
   ResponsiveContainer,
 } from "recharts"
 import { db, auth } from "@/lib/firebase"
@@ -16,6 +17,14 @@ import { collection, query, where, getDocs } from "firebase/firestore"
 import { Calendar, Activity, FileDown } from "lucide-react"
 import jsPDF from "jspdf"
 import html2canvas from "html2canvas"
+
+const DEPARTMENT_COLORS: Record<string, string> = {
+  CCS: "#f97316",
+  CEAS: "#3b82f6",
+  CAHS: "#ef4444",
+  CHTM: "#ec4899",
+  CBA: "#f59e0b",
+}
 
 export default function StatisticsPage() {
   const analyticsRef = useRef<HTMLDivElement>(null)
@@ -25,6 +34,8 @@ export default function StatisticsPage() {
     eventsThisWeek: 0,
     eventsThisMonth: 0,
     chartData: [] as { month: string; events: number }[],
+    eventsPerDept: [] as { department: string; count: number }[],
+    eventList: [] as { name: string; date: string }[],
   })
   const [loading, setLoading] = useState(true)
 
@@ -62,10 +73,22 @@ export default function StatisticsPage() {
         })
 
         const monthlyCounts: Record<string, number> = {}
+        const departments = ["CCS", "CEAS", "CAHS", "CHTM", "CBA"]
+        const departmentCounts: Record<string, number> = {
+          CCS: 0,
+          CEAS: 0,
+          CAHS: 0,
+          CHTM: 0,
+          CBA: 0,
+        }
+
         events.forEach((e: any) => {
           const date = e.startDate?.toDate ? e.startDate.toDate() : new Date(e.startDate)
           const month = date.toLocaleString("default", { month: "short" })
           monthlyCounts[month] = (monthlyCounts[month] || 0) + 1
+
+          const dept = e.department || "Unknown"
+          departmentCounts[dept] = (departmentCounts[dept] || 0) + 1
         })
 
         const chartData = Object.entries(monthlyCounts).map(([month, count]) => ({
@@ -73,11 +96,26 @@ export default function StatisticsPage() {
           events: count,
         }))
 
+        const eventsPerDept = Object.entries(departmentCounts).map(
+          ([department, count]) => ({ department, count })
+        )
+
+        const eventList = events
+          .map((e: any) => ({
+            name: e.eventName || "Untitled Event",
+            date: e.startDate
+              ? (e.startDate.toDate ? e.startDate.toDate() : new Date(e.startDate)).toLocaleDateString()
+              : "No date",
+          }))
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
         setStats({
           totalEvents: events.length,
           eventsThisWeek: eventsThisWeek.length,
           eventsThisMonth: eventsThisMonth.length,
           chartData,
+          eventsPerDept,
+          eventList,
         })
       } catch (error) {
         console.error("Error fetching organizer stats:", error)
@@ -95,7 +133,7 @@ export default function StatisticsPage() {
       scale: 3,
       backgroundColor: "#ffffff",
       useCORS: true,
-    })
+    }) //pdf size
     const imgData = canvas.toDataURL("image/png", 1.0)
     const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" })
     const pageWidth = pdf.internal.pageSize.getWidth()
@@ -137,8 +175,8 @@ export default function StatisticsPage() {
         </motion.button>
       </div>
 
-      {/* Analytics section */}
       <div ref={analyticsRef} className="space-y-6">
+        {/* Summary */}
         <motion.h1
           className="text-3xl font-bold text-gray-900"
           initial={{ opacity: 0, y: -20 }}
@@ -169,27 +207,77 @@ export default function StatisticsPage() {
             delay={0.3}
           />
         </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Event Trends Chart */}
+          <motion.div
+            className="bg-white p-6 rounded-2xl shadow-md lg:col-span-2"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Event Trends</h2>
+            {stats.chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={stats.chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="events" fill="#16a34a" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-gray-500 text-center py-10">No data available</p>
+            )}
+          </motion.div>
 
-        {/* Chart */}
+          {/* Event List  */}
+          <motion.div
+            className="bg-white p-6 rounded-2xl shadow-md"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Event List</h3>
+            {stats.eventList.length > 0 ? (
+              <ul className="space-y-2 max-h-[350px] overflow-y-auto text-sm text-gray-700">
+                {stats.eventList.map((e, i) => (
+                  <li key={i} className="flex justify-between border-b py-1">
+                    <span>{e.name}</span>
+                    <span className="text-gray-500">{e.date}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-500">No events available</p>
+            )}
+          </motion.div>
+        </div>
+
+        {/* Bar chart  */}
         <motion.div
           className="bg-white p-6 rounded-2xl shadow-md"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Event Trends</h2>
-          {stats.chartData.length > 0 ? (
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Events per Department</h2>
+          {stats.eventsPerDept.length > 0 ? (
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={stats.chartData}>
+              <BarChart layout="vertical" data={stats.eventsPerDept}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+                <XAxis type="number" />
+                <YAxis dataKey="department" type="category" width={100} />
                 <Tooltip />
-                <Bar dataKey="events" fill="#16a34a" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="count" radius={[0, 6, 6, 0]}>
+                  {stats.eventsPerDept.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={DEPARTMENT_COLORS[entry.department] || "#8884d8"} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-500 text-center py-10">No data available</p>
+            <p className="text-gray-500 text-center py-10">No department data available</p>
           )}
         </motion.div>
       </div>
