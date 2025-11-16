@@ -17,6 +17,7 @@ interface Event {
   description: string
   imageUrls: string[]
   professor?: string
+  maxParticipants?: number
 }
 
 export default function EventDetails() {
@@ -49,6 +50,7 @@ export default function EventDetails() {
             description: data.description || "No description available.",
             imageUrls: images,
             professor: data.professor || "Gordon College",
+            maxParticipants: data.maxParticipants,
           })
         } else {
           setEvent(null)
@@ -170,6 +172,12 @@ export default function EventDetails() {
                 <p className="font-semibold text-gray-800">Department</p>
                 <p className="text-gray-600">{event.department}</p>
               </div>
+              {event.maxParticipants && (
+                <div>
+                  <p className="font-semibold text-gray-800">Capacity</p>
+                  <p className="text-gray-600">{event.maxParticipants} participants</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

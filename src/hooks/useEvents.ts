@@ -101,6 +101,12 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
         location: eventData.location,
         professor: eventData.professor,
         department: eventData.department,
+        eventType: eventData.eventType || "Conference",
+        eventTypeCustom: eventData.eventTypeCustom || null,
+        speakers: eventData.speakers || [],
+        maxParticipants: eventData.maxParticipants || null,
+        registrationLinks: eventData.registrationLinks || [],
+        attendanceInfo: eventData.attendanceInfo || { persons: [], locations: [] },
         imageUrl: imageUrl || null,
         createdBy: user.uid,
         createdAt: now,
@@ -127,6 +133,24 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
       }
       if (imageUrl !== undefined) {
         updateData.imageUrl = imageUrl
+      }
+      if (eventData.eventType !== undefined) {
+        updateData.eventType = eventData.eventType
+      }
+      if (eventData.eventTypeCustom !== undefined) {
+        updateData.eventTypeCustom = eventData.eventTypeCustom
+      }
+      if (eventData.speakers !== undefined) {
+        updateData.speakers = eventData.speakers
+      }
+      if (eventData.maxParticipants !== undefined) {
+        updateData.maxParticipants = eventData.maxParticipants
+      }
+      if (eventData.registrationLinks !== undefined) {
+        updateData.registrationLinks = eventData.registrationLinks
+      }
+      if (eventData.attendanceInfo !== undefined) {
+        updateData.attendanceInfo = eventData.attendanceInfo
       }
 
       await updateDoc(eventRef, updateData)

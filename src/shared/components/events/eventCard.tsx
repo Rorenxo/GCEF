@@ -16,7 +16,10 @@ interface EventCardProps {
     description?: string
     professor?: string
     likes?: number
+    maxParticipants?: number
     comments?: number
+    eventType?: string
+    speakers?: Array<{ name: string; title?: string }>
   }
   isFavorite: boolean
   onFavorite: () => void
@@ -65,6 +68,30 @@ export default function EventCard({ event, isFavorite, onFavorite, onView, compa
 
         {!compact && (
           <>
+            {/* Event Type Badge */}
+            {event.eventType && (
+              <div className="inline-block">
+                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-800">
+                  {event.eventType}
+                </span>
+              </div>
+            )}
+
+            {/* Speakers */}
+            {event.speakers && event.speakers.length > 0 && (
+              <div className="text-sm text-muted-foreground">
+                <p className="font-semibold text-card-foreground mb-1">Speakers:</p>
+                {event.speakers.slice(0, 2).map((speaker, index) => (
+                  <p key={index} className="text-xs">
+                    {speaker.name} {speaker.title && `- ${speaker.title}`}
+                  </p>
+                ))}
+                {event.speakers.length > 2 && (
+                  <p className="text-xs text-primary">+{event.speakers.length - 2} more</p>
+                )}
+              </div>
+            )}
+
             {/* Details */}
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
@@ -79,6 +106,12 @@ export default function EventCard({ event, isFavorite, onFavorite, onView, compa
                 <Star className="h-4 w-4 text-primary" />
                 <span>{event.comments ?? 0} comments</span>
               </div>
+              {event.maxParticipants && (
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <span>{event.maxParticipants} spots</span>
+                </div>
+              )}
             </div>
 
             {/* Buttons */}

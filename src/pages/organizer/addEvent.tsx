@@ -1,15 +1,17 @@
 "use client"
 
 import { useState } from "react"
+import { AnimatePresence } from "framer-motion"
 import { useNavigate } from "react-router-dom"
 import { useEvents } from "@/hooks/useEvents"
 import EventForm from "@/shared/components/events/EventForm"
 import type { EventFormData } from "@/types"
 import { uploadImage } from "@/lib/imageUpload"
 import { auth } from "@/lib/firebase"
-
+import SuccessNotification from "@/shared/components/events/successNotif"
 export default function OrgEventPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
   const navigate = useNavigate()
   const { addEvent } = useEvents() 
 
@@ -28,8 +30,11 @@ export default function OrgEventPage() {
       }
 
       await addEvent(data, imageUrl)
-      alert("Event created successfully!")
-      navigate("/organizer") 
+      setShowSuccess(true)
+      setTimeout(() => {
+        setShowSuccess(false)
+        navigate("/organizer")
+      }, 2000) // Wait 2 seconds before navigating
     } catch (error: any) {
       console.error("Failed to add event:", error)
       alert(error.message || "Failed to add event.")
@@ -40,11 +45,18 @@ export default function OrgEventPage() {
 
   return (
     <div className="space-y-6 p-8">
-      <div>
-        <h1 className="text-3xl font-bold text-black">Add New Event</h1>
-        <p className="text-zinc-700">Create a new event for your department.</p>
-      </div>
-      <EventForm onSubmit={handleSubmit} isLoading={isLoading} />
+      <AnimatePresence>
+        {showSuccess && <SuccessNotification message="Event Created Successfully!" />}
+      </AnimatePresence>
+      {!showSuccess && (
+        <>
+          <div>
+            <h1 className="text-3xl font-bold text-black">Add New Event</h1>
+            <p className="text-zinc-700">Create a new event for your department.</p>
+          </div>
+          <EventForm onSubmit={handleSubmit} isLoading={isLoading} />
+        </>
+      )}
     </div>
   )
 }

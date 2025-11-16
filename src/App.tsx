@@ -25,6 +25,7 @@ import EventDetails from "@/pages/organizer/EventDetails"
 import StatisticsPage from "@/pages/organizer/orgstats"
 import OrgEventPage from "@/pages/organizer/addEvent"
 import EditEventPage from "@/pages/organizer/EditEventPage"
+import OrganizerCalendar from "@/pages/organizer/OrganizerCalendar"
 
 
 // ---------- STUDENT ----------
@@ -78,6 +79,7 @@ function App() {
         <Route path="add-event" element={<OrgEventPage />} />
         <Route path="statistics" element={<StatisticsPage />} />
         <Route path="/organizer/:organizerId/events/:eventId" element={<EventDetails />} />
+        <Route path="calendar" element={<OrganizerCalendar />} />
         <Route path="edit-event/:eventId" element={<EditEventPage />} />
 
         </Route>

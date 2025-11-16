@@ -1,4 +1,31 @@
-export type Department = |"ALL"| "CCS" | "CEAS" | "CAHS" | "CHTM" | "CBA" 
+export type Department = |"ALL"| "CCS" | "CEAS" | "CAHS" | "CHTM" | "CBA"
+
+export type EventType = "Conference" | "Seminar" | "Workshop" | "Lecture" | "Networking" | "Hackathon" | "other"
+
+export interface Speaker {
+  name: string
+  title?: string
+}
+
+export interface AttendancePerson {
+  name: string
+  role?: string
+}
+
+export interface AttendanceLocation {
+  name: string
+  description?: string
+}
+
+export interface AttendanceInfo {
+  persons?: AttendancePerson[]
+  locations?: AttendanceLocation[]
+}
+
+export interface RegistrationLink {
+  title: string
+  url: string
+}
 
 export interface Event {
   id: string
@@ -9,6 +36,12 @@ export interface Event {
   location: string
   professor: string
   department: Department
+  eventType?: EventType
+  eventTypeCustom?: string
+  speakers?: Speaker[]
+  maxParticipants?: number
+  registrationLinks?: RegistrationLink[]
+  attendanceInfo?: AttendanceInfo
   imageUrl?: string
   likes?: number
   comments?: number
@@ -24,6 +57,12 @@ export interface EventFormData {
   location: string
   professor: string
   department: Department
+  eventType?: EventType
+  eventTypeCustom?: string
+  speakers?: Speaker[]
+  maxParticipants?: number
+  registrationLinks?: RegistrationLink[]
+  attendanceInfo?: AttendanceInfo
   image?: File
 }
 
