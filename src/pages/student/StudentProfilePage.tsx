@@ -110,45 +110,29 @@ export default function StudentProfilePage() {
           </div>
 
           <div className="lg:col-span-2">
-            <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
-              <h3 className="text-2xl font-bold text-gray-900 mb-8">Student Profile Details</h3>
+            <div className="bg-white border border-gray-200 rounded-2xl p-9 shadow-sm">
+              {/* Personal Information Section */}
+              <div className="mb-10">
+                <h3 className="text-2xl font-bold text-gray-800 mb-3">Personal Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  <ProfileDetail label="First Name" value={profile?.firstName} />
+                  <ProfileDetail label="Last Name" value={profile?.lastName} />
+                  <ProfileDetail label="Middle Name" value={profile?.middleName} />
+                  <ProfileDetail label="Suffix" value={profile?.suffix} />
+                </div>
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium mb-2">First Name</label>
-                  <p className="text-gray-900 font-semibold text-lg">{profile?.firstName}</p>
-                </div>
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium mb-2">Last Name</label>
-                  <p className="text-gray-900 font-semibold text-lg">{profile?.lastName}</p>
-                </div>
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium mb-2">Middle Name</label>
-                  <p className="text-gray-900 font-semibold text-lg">{profile?.middleName || "N/A"}</p>
-                </div>
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium mb-2">Suffix</label>
-                  <p className="text-gray-900 font-semibold text-lg">{profile?.suffix || "N/A"}</p>
-                </div>
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium mb-2">Student Number</label>
-                  <p className="text-gray-900 font-semibold text-lg">{profile?.studentNumber}</p>
-                </div>
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium mb-2">Email</label>
-                  <p className="text-gray-900 font-semibold text-lg">{profile?.email}</p>
-                </div>
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium mb-2">Department</label>
-                  <p className="text-gray-900 font-semibold text-lg">{profile?.department}</p>
-                </div>
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium mb-2">Course</label>
-                  <p className="text-gray-900 font-semibold text-lg">{profile?.course}</p>
-                </div>
-                <div>
-                  <label className="block text-gray-600 text-sm font-medium mb-2">Year Level</label>
-                  <p className="text-gray-900 font-semibold text-lg">{profile?.yearLevel}</p>
+              {/* Academic Information Section */}
+              <div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Academic Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 md:col-span-2"> 
+                    <ProfileDetail label="Student Number" value={profile?.studentNumber} />
+                    <ProfileDetail label="Email" value={profile?.email} />
+                  </div>
+                  <ProfileDetail label="Department" value={profile?.department} />
+                  <ProfileDetail label="Course" value={profile?.course} />
+                  <ProfileDetail label="Year Level" value={profile?.yearLevel} />
                 </div>
               </div>
             </div>
@@ -157,4 +141,13 @@ export default function StudentProfilePage() {
       </div>
     </div>
   )
+}
+
+function ProfileDetail({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div>
+      <label className="block text-gray-500 text-xs font-medium mb-1">{label}</label>
+      <p className="text-gray-900 font-bold text-base">{value || "N/A"}</p>
+    </div>
+  );
 }

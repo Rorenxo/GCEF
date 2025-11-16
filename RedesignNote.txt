@@ -70,3 +70,70 @@
   LANDING PAGE
   ----------------------------------------------------------------
   (No specific tasks yet)
+
+✅ Student Campus Feed UI Improvement Checklist
+I. General Design & Aesthetics
+Color Accent
+
+[ ] Introduce a secondary accent color (vibrant hue) for interactive elements (buttons, links, active states) to make the interface less plain.
+
+Elevation & Shadows
+
+[ ] Apply subtle, consistent drop shadows to all card components (events, profile boxes) to give an 'elevation' effect and depth.
+
+Typography Hierarchy
+
+[ ] Use varied font weights (light, regular, bold) and sizes to establish a clearer visual hierarchy for headings and body text.
+
+II. Homepage/Dashboard
+Header/Banner
+
+[ ] Replace the plain grey banner with a Dynamic Header featuring a vibrant gradient, texture, or a motivational quote.
+
+Navigation
+
+[ ] Ensure all sidebar entries (Dashboard, Calendar) have clear and relevant icons.
+
+Content Priority
+
+[ ] Implement Upcoming Events Priority by placing the most relevant, future events above "Past Events."
+
+Event Cards
+
+[ ] Enhance Event Card Visuals using clear icons (e.g., 📍, 📅) for location and time.
+
+[ ] Use bold date badges or tags for quick recognition of event dates.
+
+Comment Section UX
+
+[ ] Collapse the comments box by default; replace the input field with a simple "View Comments (X)" button that opens a modal or a controlled expansion.
+
+III. Student Profile UI
+Personalization
+
+[ ] Add a Profile Picture/Avatar circle frame for the student photo or a clear placeholder/initials.
+
+Details Structure
+
+[ ] Implement clear Details Grouping by separating data into logical sections (e.g., Personal Info, Academic Info).
+
+Readability
+
+[ ] Use Value Highlighting by applying bold text to the actual data values (e.g., Jose Manalo) for easier scanning.
+
+IV. Attendance Checker (New Feature)
+Navigation
+
+[ ] Add a clearly labeled Sidebar Entry for "Attendance" with an appropriate icon (e.g., ⏱️ or ✅).
+
+Action UI
+
+[ ] Create a large, centrally-located Action Button prominently labeled "Tap to Check In/Out."
+
+Status & Feedback
+
+[ ] Include a card for Current Status Display showing real-time check-in/out status (e.g., "You are currently Checked In").
+
+Data & History
+
+[ ] Provide a Summary/Statistics section showing key data (Total % Presence, Late count) and a log of recent check-in/out activity.
