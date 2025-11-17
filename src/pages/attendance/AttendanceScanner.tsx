@@ -94,6 +94,7 @@ export default function AttendanceScanner() {
 
     return () => {
       if (scannerRef.current) {
+        
         scannerRef.current
           .stop()
           .then(() => scannerRef.current?.clear())
@@ -105,6 +106,13 @@ export default function AttendanceScanner() {
   return (
     <div className="flex flex-col items-center p-6">
       <h1 className="text-2xl font-bold mb-4">Scan QR for Event: {eventId}</h1>
+
+<button
+  onClick={() => window.history.back()}
+  className="mb-4 flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition"
+>
+  ← Back
+</button>
 
       <div
         id="reader"
