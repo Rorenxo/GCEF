@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, type FormEvent, useEffect } from "react"
-import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence } from "firebase/auth"
+import { getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, createUserWithEmailAndPassword, signOut } from "firebase/auth"
 import { Checkbox } from "@/shared/components/ui/checkbox"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
@@ -72,17 +72,25 @@ export default function Auth() {
         await signIn(email, password);
         navigate("/organizer")
       } else {
+        const auth = getAuth()
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+        const createdUser = userCredential.user
+
         await addDoc(collection(db, "pendingOrganizers"), {
+          uid: createdUser.uid,
           firstName,
           lastName,
           email,
-          password,
+          //password
           department,
           course,
           yearLevel,
           studentNumber,
           status: "pending",
-        });
+          createdAt: new Date(),
+        })
+
+        await signOut(auth)
         setIsSubmitted(true);
       }
     } catch (err) {

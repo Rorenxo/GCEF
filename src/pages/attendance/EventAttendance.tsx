@@ -18,8 +18,6 @@ export default function EventAttendance() {
   const { eventId } = useParams<{ eventId: string }>();
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Optional: fetch event name if you want to display it
   const [eventName, setEventName] = useState("");
 
   useEffect(() => {

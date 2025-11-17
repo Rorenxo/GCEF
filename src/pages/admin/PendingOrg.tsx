@@ -9,6 +9,7 @@
     onSnapshot,
     doc,
     updateDoc,
+    setDoc,
     addDoc,
     deleteDoc,
     } from "firebase/firestore";
@@ -23,7 +24,8 @@
     firstName: string;
     lastName: string;
     email: string;
-    password?: string;
+        uid?: string;
+    // password?: string; // intentionally not stored for security
     status: "pending" | "approved" | "denied" | "failed";
     }
 
@@ -54,6 +56,17 @@
             if (!organizer.firstName || !organizer.lastName || !organizer.email) {
             throw new Error("Organizer data is incomplete.");
             }
+            // If the pending organizer already has a UID (created during registration), use it as the document ID
+            if (organizer.uid) {
+            await setDoc(doc(db, "organizers", organizer.uid), {
+                firstName: organizer.firstName,
+                lastName: organizer.lastName,
+                email: organizer.email,
+                role: "organizer",
+                status: "approved",
+                createdAt: new Date(),
+            }, { merge: true });
+            } else {
             await addDoc(collection(db, "organizers"), {
             firstName: organizer.firstName,
             lastName: organizer.lastName,
@@ -62,6 +75,7 @@
             status: "approved",
             createdAt: new Date(),
             });
+            }
             await deleteDoc(doc(db, "pendingOrganizers", organizer.id));
 
             alert("Organizer approved successfully!");
