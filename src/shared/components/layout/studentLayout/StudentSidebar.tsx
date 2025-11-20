@@ -19,6 +19,7 @@ const navigation = [
   { name: "Home", href: "/student", icon: Home },
   { name: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },  
   { name: "Calendar", href: "/student/calendar", icon: Calendar },
+  { name: "My Attendance", href: "/student/attendance", icon: List },
 ];
 
 interface StudentSidebarProps {
@@ -37,12 +38,12 @@ export default function StudentSidebar({ closeSidebar }: StudentSidebarProps) {
 
   return (
     <div
-      className="flex h-screen w-64 flex-col border-r border-[#0C342C]
-                 bg-gradient-to-b from-[#076653] via-[#0C342C] to-[#06231D]
-                 shadow-lg"
+      className="flex h-screen w-55 flex-col  rounded-tr-xl rounded-br-xl
+                 bg-[#048f15]
+                 shadow-lg" 
     >
       {/* ---------- Header ---------- */}
-      <div className="flex items-center gap-3 px-6 py-4 border-b border-[#094235]">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-green-900/50">
         <img
           src={gcef1}
           alt="GCEF Logo"
@@ -67,7 +68,7 @@ export default function StudentSidebar({ closeSidebar }: StudentSidebarProps) {
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                isActive
+                isActive // Active link
                   ? "bg-white text-black shadow-lg shadow-black/40"
                   : "text-white hover:bg-white/10 hover:text-white"
               )
@@ -80,7 +81,7 @@ export default function StudentSidebar({ closeSidebar }: StudentSidebarProps) {
       </nav>
 
       {/* ---------- Footer ---------- */}
-      <div className="border-t border-[#0E4A3C] p-4">
+      <div className="border-t border-green-900/50 p-4">
         <Button
           onClick={handleLogout}
           variant="outline"

@@ -37,6 +37,7 @@ import StudentEvents from "@/pages/student/StudentEvents"
 import StudentMessages from "@/pages/student/StudentMEssages"
 import StudentSettings from "@/pages/student/StudentSettings"
 import StudentProfilePage from "@/pages/student/StudentProfilePage"
+import StudentAttendancePage from "@/pages/student/StudentAttendance"
 
 function App() {
   return (
@@ -107,6 +108,7 @@ function App() {
           <Route path="messages" element={<StudentMessages />} />
           <Route path="settings" element={<StudentSettings />} />
           <Route path="profile" element={<StudentProfilePage />} />
+          <Route path="attendance" element={<StudentAttendancePage />} />
         </Route>
 
         {/* ---------- CATCH ALL ---------- */}
