@@ -86,7 +86,7 @@ export default function StudentLayout() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search events..."
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-muted/40 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-sm h-9"
+                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-muted/40 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-green-300 text-sm h-9"
                   />
                 </div>
               )}
@@ -94,7 +94,7 @@ export default function StudentLayout() {
               <div className="relative" ref={profileDropdownRef}>
                 <button 
                   onClick={() => setShowProfileDropdown(prev => !prev)}
-                  className="p-1.5 rounded-full bg-green-100 hover:bg-green-200 transition-colors ring-2 ring-green-500"
+                  className="p-1.5 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors ring-1 ring-blue-500"
                 >
                   <User className="h-5 w-5 text-green-800" />
                 </button>
@@ -107,16 +107,16 @@ export default function StudentLayout() {
                       className="absolute right-0 mt-4 w-48 bg-white rounded-lg border border-gray-200 shadow-2xl z-20 overflow-hidden"
                     >
                       <div className="p-2">
-                        <Link to="/student/profile" onClick={() => setShowProfileDropdown(false)} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md transition-colors">
-                          <User className="h-4 w-4" /> Account
+                        <Link to="/student/profile" onClick={() => setShowProfileDropdown(false)} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-foreground hover:bg-gray-200 rounded-md transition-colors">
+                          <User className="h-4 w-4" /> My  Account
                         </Link>
-                        <Link to="/student/settings" onClick={() => setShowProfileDropdown(false)} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md transition-colors">
+                        <Link to="/student/settings" onClick={() => setShowProfileDropdown(false)} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-foreground hover:bg-gray-200 rounded-md transition-colors">
                           <Settings className="h-4 w-4" /> Settings
                         </Link>
                         <button onClick={() => {
                           setShowProfileDropdown(false);
                           setIsLogoutConfirmOpen(true);
-                        }} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors">
+                        }} className="flex items-center gap-3 w-full px-3 py-2 text-sm text-destructive hover:bg-gray-200 rounded-md transition-colors">
                           <LogOut className="h-4 w-4" /> Logout
                         </button>
                       </div>
