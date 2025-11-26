@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Outlet, Link, useNavigate, useLocation, useOutletContext } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, Bell, User, Settings, LogOut, Search } from "lucide-react";
+import { Menu, User, Settings, LogOut, Search } from "lucide-react";
 import StudentSidebar from "@/shared/components/layout/studentLayout/StudentSidebar";
+import { NotificationCenter } from "@/shared/components/NotificationCenter";
 import { auth } from "@/lib/firebase";
 import useAuth from "@/shared/components/useStudentAuth";
 
@@ -91,7 +92,7 @@ export default function StudentLayout() {
                   />
                 </div>
               )}
-              <button className="p-2 rounded-full hover:bg-muted/40 transition-colors"><Bell className="h-5 w-5 text-muted-foreground" /></button>              
+              <NotificationCenter />
               <div className="relative" ref={profileDropdownRef}>
                 <button 
                   onClick={() => setShowProfileDropdown(prev => !prev)}

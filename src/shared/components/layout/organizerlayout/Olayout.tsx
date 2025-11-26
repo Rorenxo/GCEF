@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu } from "lucide-react"
 import Sidebar from "./Osidebar"
+import { NotificationCenter } from "@/shared/components/NotificationCenter"
 
 export default function OrganizerLayout() {
   const [isSidebarOpen, setSidebarOpen] = useState(false)
@@ -53,7 +54,9 @@ export default function OrganizerLayout() {
           </button>
 
           {/* Container for actions from child pages */}
-          <div id="mobile-header-actions" className="flex items-center gap-2"></div>
+          <div className="flex items-center gap-2">
+            <NotificationCenter />
+          </div>
         </div>
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-zinc-100">
           <Outlet />

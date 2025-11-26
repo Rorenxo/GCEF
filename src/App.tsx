@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { ProtectedRoute } from "@/shared/components/ProtectedRoute"
+import { useEventReminders } from "@/hooks/useEventReminders"
 
 // ---------- PUBLIC PAGES ----------
 import Login from "@/auth/adminAuth/Login"
@@ -16,6 +17,7 @@ import PendingOrganizersPage from "@/pages/admin/PendingOrg"
 import ApprovedOrganizersHistoryPage from "@/pages/admin/ApproveHistory"
 import AddEventPage from "@/pages/admin/AddEventPage"
 import AnalyticsPage from "@/pages/admin/Analytics"
+import AdminEditEventPage from "@/pages/admin/EditEventPage"
 import AdminLayout from "@/shared/components/layout/adminlayout/Layout"
 
 // ---------- ORGANIZER ----------
@@ -43,6 +45,9 @@ import SavedEventsPage from "@/pages/student/SavedEvents"
 
 
 function App() {
+  // Set up event reminders
+  useEventReminders()
+
   return (
     <BrowserRouter>
       <Routes>
@@ -69,6 +74,7 @@ function App() {
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="events" element={<EventsPage />} />
           <Route path="add-event" element={<AddEventPage />} />
+          <Route path="edit-event/:eventId" element={<AdminEditEventPage />} />
         </Route>
 
         {/* ---------- ORGANIZER ROUTES ---------- */}

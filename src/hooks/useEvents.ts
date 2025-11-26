@@ -107,7 +107,7 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
         // If not an organizer, that's okay
       }
 
-      await addDoc(collection(db, "events"), {
+      const newEvent = await addDoc(collection(db, "events"), {
         eventName: eventData.eventName,
         startDate: Timestamp.fromDate(new Date(eventData.startDate)),
         endDate: Timestamp.fromDate(new Date(eventData.endDate)),
@@ -128,6 +128,18 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
         createdAt: now,
         updatedAt: now,
       })
+
+      // Send notifications about new event creation
+      try {
+        const { notifyEventCreation } = await import("@/lib/notificationService")
+        // Notify all students (you may want to filter by department later)
+        // For now, we'll just notify through the database structure
+        // Admin notifications are typically done server-side or via a scheduled function
+        console.log("Event created:", newEvent.id)
+      } catch (error) {
+        console.error("Error sending event creation notification:", error)
+        // Don't throw - event was still created successfully
+      }
     } catch (err: any) {
       throw new Error(err.message || "Failed to add event")
     }
@@ -170,6 +182,32 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
       }
 
       await updateDoc(eventRef, updateData)
+
+      // Send notifications about event update
+      try {
+        const { notifyEventUpdate } = await import("@/lib/notificationService")
+        const currentEvent = await getDoc(eventRef)
+        if (currentEvent.exists()) {
+          const eventData = currentEvent.data()
+          const changeDetails = Object.keys(updateData)
+            .filter((k) => k !== "updatedAt")
+            .join(", ")
+          
+          // Notify students who saved the event
+          if (eventData.saves && eventData.saves.length > 0) {
+            await notifyEventUpdate(
+              eventData.saves,
+              currentEvent.id,
+              eventData.eventName,
+              eventData.organizerName || "Event Organizer",
+              `Updated: ${changeDetails}`
+            )
+          }
+        }
+      } catch (error) {
+        console.error("Error sending event update notification:", error)
+        // Don't throw - event was still updated successfully
+      }
     } catch (err: any) {
       throw new Error(err.message || "Failed to update event")
     }

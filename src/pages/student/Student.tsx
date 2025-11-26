@@ -307,30 +307,34 @@
 
             {/* Category Filters */}
             <div className="px-4 md:px-8 py-6">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
+              <div className="flex overflow-x-auto sm:grid sm:grid-cols-4 gap-4 md:gap-6 pb-2 -mb-2 ">
                 <FilterCard
                   label="All Events"
                   imageUrl="src/assets/campusEvent.jpg"
                   isActive={activeFilter === 'All'}
                   onClick={() => setActiveFilter('All')}
+                  className="flex-shrink-0 w-20 sm:w-auto"
                 />
                 <FilterCard
                   label="Seminars"
                   imageUrl="src/assets/gcSeminar.jpg"
                   isActive={activeFilter === 'Seminar'}
                   onClick={() => setActiveFilter('Seminar')}
+                  className="flex-shrink-0 w-28 sm:w-auto"
                 />
                 <FilterCard
                   label="Activities"
                   imageUrl="src/assets/gcAct.jpg"
                   isActive={activeFilter === 'Activity'}
                   onClick={() => setActiveFilter('Activity')}
+                  className="flex-shrink-0 w-28 sm:w-auto"
                 />
                 <FilterCard
                   label="Social"
                   imageUrl="src/assets/socialGC.jpg"
                   isActive={activeFilter === 'Social'}
                   onClick={() => setActiveFilter('Social')}
+                  className="flex-shrink-0 w-28 sm:w-auto"
                 />
               </div>
             </div>
@@ -376,9 +380,6 @@
                           <div className="w-1 h-8 bg-gradient-to-b from-indigo-600 to-purple-600 rounded-full"></div>
                           <h3 className="text-2xl font-bold text-foreground">Upcoming Events</h3>
                         </div>
-                        <span className="ml-auto text-sm font-semibold px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full">
-                          {upcomingEvents.length}
-                        </span>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {upcomingEvents.map((event) => (
@@ -403,9 +404,6 @@
                           <div className="w-1 h-8 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></div>
                           <h3 className="text-2xl font-bold text-foreground">Today's Events</h3>
                         </div>
-                        <span className="ml-auto text-sm font-semibold px-3 py-1 bg-orange-100 text-orange-700 rounded-full">
-                          {todaysEvents.length}
-                        </span>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {todaysEvents.map((event) => (
@@ -430,9 +428,6 @@
                           <div className="w-1 h-8 bg-gradient-to-b from-teal-500 to-cyan-500 rounded-full"></div>
                           <h3 className="text-2xl font-bold text-foreground">Further Ahead</h3>
                         </div>
-                        <span className="ml-auto text-sm font-semibold px-3 py-1 bg-teal-100 text-teal-700 rounded-full">
-                          {furtherAheadEvents.length}
-                        </span>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {furtherAheadEvents.map((event) => (
@@ -457,9 +452,6 @@
                           <div className="w-1 h-8 bg-gradient-to-b from-gray-400 to-gray-600 rounded-full"></div>
                           <h3 className="text-2xl font-bold text-foreground">Past Events</h3>
                         </div>
-                        <span className="ml-auto text-sm font-semibold px-3 py-1 bg-gray-100 text-gray-700 rounded-full">
-                          {pastEvents.length}
-                        </span>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {pastEvents.map((event) => (
@@ -599,7 +591,6 @@
     const saves = event.saves ?? [];
     const saved = user && user.uid && saves.includes(user.uid);
 
-    // Multi-image slider logic
     const images = event.images && event.images.length > 0 ? event.images : event.imageUrl ? [event.imageUrl] : [];
 
     return (
@@ -787,16 +778,16 @@
     );
 }
 
-  const FilterCard = ({ label, imageUrl, isActive, onClick }: { label: string, imageUrl: string, isActive: boolean, onClick: () => void }) => {
+  const FilterCard = ({ label, imageUrl, isActive, onClick, className }: { label: string, imageUrl: string, isActive: boolean, onClick: () => void, className?: string }) => {
     return (
       <motion.div
         onClick={onClick}
-        className={`relative h-24 rounded-full bg-cover bg-center shadow-lg overflow-hidden group cursor-pointer transition-all duration-300 transform hover:-translate-y-1 ${isActive ? 'ring-4 ring-offset-2 ring-[#7cb93c]' : 'ring-0'}`}
+        className={`relative h-14 sm:h-24 rounded-lg bg-cover bg-center shadow-lg overflow-hidden group cursor-pointer transition-all duration-300 transform hover:-translate-y-1 ${isActive ? 'ring-1 ring-offset-2 ring-[#7cb93c]' : 'ring-0'} ${className}`}
         style={{ backgroundImage: `url(${imageUrl})` }}
       >
         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300"></div>
         <div className="absolute inset-0 flex items-center justify-center p-2">
-          <h4 className="text-white font-bold text-sm md:text-base lg:text-lg text-center drop-shadow-md">
+          <h4 className="text-white font-bold text-xs sm:text-sm md:text-base text-center drop-shadow-md">
             {label}
           </h4>
         </div>
