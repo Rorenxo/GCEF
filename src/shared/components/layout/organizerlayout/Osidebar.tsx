@@ -26,33 +26,34 @@
 
     return (
         <div
-        className="flex h-screen w-64 flex-col border-r border-[#0C342C] 
-                    bg-gradient-to-b from-[#076653] via-[#0C342C] to-[#06231D]"
+        className="flex h-screen w-60 flex-col rounded-br-xl
+                 bg-[#7cb93c]/95
+                 shadow-lg"
         >
-        <div className="flex h-16 items-center gap-2 border-b border-zinc-800 px-6">
+        <div className="flex items-center gap-3 px-6 py-4 ">
             <img
             src={gcef1}
             alt="GCEF Logo"
-            className="mx-auto mb-4 h-14 w-14 object-contain"
+            className="h-14 w-14 object-contain rounded-full bg-white p-1"
             />
             <div>
-            <h1 className="text-xl font-bold text-white">Organizer</h1>
-            <p className="text-xs text-zinc-400">Event Management</p>
+            <h1 className="text-lg font-bold text-white">Organizer</h1>
+            <p className="text-xs text-black">Event Management</p>
             </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto p-4 space-y-1">
             {navigation.map((item) => (
             <NavLink
-                key={item.href}
+                key={item.name}
                 to={item.href}
                 end={item.href === "/organizer"}
                 className={({ isActive }) =>
                 cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                     isActive
                     ? "bg-white text-black shadow-lg shadow-black/40"
-                    : "text-white hover:bg-white/10"
+                    : "text-white hover:bg-white/10 hover:text-white"
                 )
                 }
             >
@@ -62,21 +63,10 @@
             ))}
         </nav>
 
-        <div className="border-t border-zinc-800 p-4">
-            <div className="mb-3 rounded-lg bg-zinc-900 p-3">
-            <p className="text-xs text-zinc-200">Signed in as</p>
-            <p className="truncate text-sm font-medium text-zinc-200">
-                {user?.email}
+        <div className="border-t border-green-900/50 p-4">
+            <p className="text-white text-center text-xs">
+            GCEF v2.0.0
             </p>
-            </div>
-            <Button
-            onClick={handleSignOut}
-            variant="outline"
-            className="w-full bg-red-700 text-white border-red-700 hover:bg-red-800 hover:text-white shadow-md transition-colors"
-            >
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-            </Button>
         </div>
         </div>
     )

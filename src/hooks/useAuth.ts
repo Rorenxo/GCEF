@@ -115,6 +115,7 @@ export function useAuth() {
       await setDoc(doc(db, collection, createdUser.uid), {
         firstName,
         lastName,
+        organizerName: role === "organizer" ? `${firstName} ${lastName}` : undefined,
         email,
         role,
         createdAt: new Date(),

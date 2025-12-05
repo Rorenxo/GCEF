@@ -32,11 +32,9 @@ export default function Auth() {
   const [lastName, setLastName] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [formError, setFormError] = useState("") 
-  const [department, setDepartment] = useState("")
   const [course, setCourse] = useState("")
-  const [yearLevel, setYearLevel] = useState("")
-  const [studentNumber, setStudentNumber] = useState("")
   const [rememberMe, setRememberMe] = useState(false)
+  const [organizerName, setOrganizerName] = useState("")
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
@@ -82,10 +80,8 @@ export default function Auth() {
           lastName,
           email,
           //password
-          department,
+          organizerName,
           course,
-          yearLevel,
-          studentNumber,
           status: "pending",
           createdAt: new Date(),
         })
@@ -180,53 +176,16 @@ export default function Auth() {
               )}
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="studentNumber" className="text-zinc-900">Student Number</Label>
+                  <Label htmlFor="organizerName" className="text-zinc-900">Organizer Name</Label>
                   <Input
-                    id="studentNumber"
+                    id="organizerName"
                     type="text"
-                    placeholder="2023-XXXXX-XX"
-                    value={studentNumber}
-                    onChange={(e) => setStudentNumber(e.target.value)}
+                    placeholder="e.g. CCS Student Council"
+                    value={organizerName}
+                    onChange={(e) => setOrganizerName(e.target.value)}
                     required
                     className="border-zinc-400 bg-zinc-100 text-black focus:border-green-500 focus:ring-green-500"
                   />
-                </div>
-              )}
-              {!isLogin && (
-                <div className="flex gap-2">
-                  <div className="space-y-2 w-1/2">
-                    <Label htmlFor="department" className="text-zinc-900">College/Department</Label>
-                    <select
-                      id="department"
-                      value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
-                      required
-                      className="w-full p-2 border-zinc-400 bg-zinc-100 text-black rounded-md focus:border-green-500 focus:ring-green-500"
-                    >
-                      <option value="">Select Department</option>
-                      <option value="CCS">CCS</option>
-                      <option value="CEAS">CEAS</option>
-                      <option value="CHTM">CHTM</option>
-                      <option value="CBA">CBA</option>
-                      <option value="CAHS">CAHS</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2 w-1/2">
-                    <Label htmlFor="yearLevel" className="text-zinc-900">Year Level</Label>
-                    <select
-                      id="yearLevel"
-                      value={yearLevel}
-                      onChange={(e) => setYearLevel(e.target.value)}
-                      required
-                      className="w-full p-2 border-zinc-400 bg-zinc-100 text-black rounded-md focus:border-green-500 focus:ring-green-500"
-                    >
-                      <option value="">Select Year</option>
-                      <option value="1st Year">1st Year</option>
-                      <option value="2nd Year">2nd Year</option>
-                      <option value="3rd Year">3rd Year</option>
-                      <option value="4th Year">4th Year</option>
-                    </select>
-                  </div>
                 </div>
               )}
 

@@ -5,30 +5,15 @@ import { AnimatePresence } from "framer-motion"
 import { useNavigate, useParams } from "react-router-dom"
 import { useEvents } from "@/hooks/useEvents"
 import EventForm from "@/shared/components/events/EventForm"
-import type { EventFormData } from "@/types"
-
-type EventWithImages = {
-  id: string
-  eventName: string
-  department: string
-  location: string
-  startDate: Date
-  endDate: Date
-  professor: string
-  description: string
-  imageUrl: string
-  imageUrls: string[]
-  createdAt: Date
-  updatedAt: Date
-}
+import type { EventFormData, Event } from "@/types"
 import { uploadImage } from "@/lib/imageUpload"
 import { doc, getDoc } from "firebase/firestore"
 import { db } from "@/lib/firebase"
 import SuccessNotification from "@/shared/components/events/successNotif"
 
-export default function EditEventPage() {
+export default function AdminEditEventPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [eventData, setEventData] = useState<EventWithImages | undefined>(undefined)
+  const [eventData, setEventData] = useState<Event | undefined>(undefined)
   const navigate = useNavigate()
   const { eventId } = useParams<{ eventId: string }>()
   const { updateEvent } = useEvents()
@@ -58,11 +43,11 @@ export default function EditEventPage() {
             imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : data.imageUrl ? [data.imageUrl] : [],
             createdAt: data.createdAt?.toDate?.() || new Date(),
             updatedAt: data.updatedAt?.toDate?.() || new Date(),
-          })
+          } as Event)
         } else {
           console.error("No such event!")
           alert("Event not found.")
-          navigate("/organizer")
+          navigate("/admin/events")
         }
       } catch (error) {
         console.error("Error fetching event:", error)
@@ -84,7 +69,6 @@ export default function EditEventPage() {
       let imageUrls: string[] = Array.isArray(eventData?.imageUrls) ? [...eventData.imageUrls] : []
 
       if (Array.isArray(images) && images.length > 0) {
-        // Only upload new files (File type)
         const newFiles = images.filter(img => img instanceof File) as File[]
         if (newFiles.length > 0) {
           const uploadedUrls = await Promise.all(
@@ -97,7 +81,7 @@ export default function EditEventPage() {
       await updateEvent(eventId, eventDetails, imageUrls)
       setShowSuccess(true)
       setTimeout(() => {
-        navigate("/organizer")
+        navigate("/admin/dashboard")
       }, 2000)
     } catch (error: any) {
       console.error("Failed to update event:", error)
@@ -107,24 +91,10 @@ export default function EditEventPage() {
   }
 
   return (
-    <div className="space-y-6 p-8">
-      <AnimatePresence>
-        {showSuccess && <SuccessNotification message="Event Updated Successfully!" />}
-      </AnimatePresence>
+    <div className="space-y-6">
+      <AnimatePresence>{showSuccess && <SuccessNotification message="Event Updated Successfully!" />}</AnimatePresence>
       {!showSuccess && (
-        <>
-          <div>
-            <h1 className="text-3xl font-bold text-black">Edit Event</h1>
-            <p className="text-zinc-700">Update the details for your event.</p>
-          </div>
-          {isLoading && !eventData ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
-            </div>
-          ) : (
-            <EventForm onSubmit={handleSubmit} isLoading={isLoading} initialData={eventData} />
-          )}
-        </>
+        <>{isLoading && !eventData ? <div className="flex justify-center items-center h-64"><div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" /></div> : <EventForm onSubmit={handleSubmit} isLoading={isLoading} initialData={eventData} />}</>
       )}
     </div>
   )

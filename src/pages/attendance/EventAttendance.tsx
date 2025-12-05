@@ -22,8 +22,6 @@ export default function EventAttendance() {
 
   useEffect(() => {
     if (!eventId) return;
-
-    // Fetch event name
     const fetchEventName = async () => {
       try {
         const eventSnap = await getDoc(doc(db, "events", eventId));
@@ -113,12 +111,13 @@ export default function EventAttendance() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
-        <button
-  onClick={() => window.history.back()}
-  className="mb-4 flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition"
->
-  ← Back
-</button>
+        {/* Back Button */}
+        <Link
+          to="/organizer"
+          className="inline-flex items-center text-gray-700 hover:text-gray-900 mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" /> Back to Home
+        </Link>
 
         <h1 className="text-2xl font-bold mb-4">
           Attendance for Event: {eventName || eventId}

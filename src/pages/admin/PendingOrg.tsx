@@ -1,5 +1,6 @@
     "use client";
 
+    import { motion, AnimatePresence } from "framer-motion";
     import { useState, useEffect } from "react";
     import { useNavigate } from "react-router-dom";
     import {
@@ -17,15 +18,15 @@
     import { Button } from "@/shared/components/ui/button";
     import {Card,CardContent,CardHeader,CardTitle,} from "@/shared/components/ui/card";
     import {Table,TableBody,TableCell,TableHead,TableHeader,TableRow,} from "@/shared/components/ui/table";
-    import { Check, X, History } from "lucide-react";
+    import { Check, X, History, Loader2 } from "lucide-react";
 
     interface PendingOrganizer {
     id: string;
     firstName: string;
     lastName: string;
     email: string;
-        uid?: string;
-    // password?: string; // intentionally not stored for security
+    uid?: string;
+    organizerName?: string;
     status: "pending" | "approved" | "denied" | "failed";
     }
 
@@ -33,6 +34,7 @@
     const [pendingOrganizers, setPendingOrganizers] = useState<PendingOrganizer[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
+    const [confirmAction, setConfirmAction] = useState<{ action: 'approve' | 'deny'; organizer: PendingOrganizer } | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -49,8 +51,10 @@
     }, []);
 
 
-        const handleApprove = async (organizer: PendingOrganizer) => {
-        setActionLoading((prev) => ({ ...prev, [organizer.id]: true }));
+    const handleApprove = async () => {
+        if (!confirmAction || confirmAction.action !== 'approve') return;
+        const { organizer } = confirmAction;
+        setActionLoading({ ...actionLoading, [organizer.id]: true });
 
         try {
             if (!organizer.firstName || !organizer.lastName || !organizer.email) {
@@ -61,6 +65,7 @@
             await setDoc(doc(db, "organizers", organizer.uid), {
                 firstName: organizer.firstName,
                 lastName: organizer.lastName,
+                organizerName: organizer.organizerName,
                 email: organizer.email,
                 role: "organizer",
                 status: "approved",
@@ -70,6 +75,7 @@
             await addDoc(collection(db, "organizers"), {
             firstName: organizer.firstName,
             lastName: organizer.lastName,
+            organizerName: organizer.organizerName,
             email: organizer.email,
             role: "organizer",
             status: "approved",
@@ -79,25 +85,29 @@
             await deleteDoc(doc(db, "pendingOrganizers", organizer.id));
 
             alert("Organizer approved successfully!");
+            setConfirmAction(null);
         } catch (error: any) {
             console.error("Approval failed:", error);
             alert(`Error approving organizer: ${error.message}`);
         } finally {
-            setActionLoading((prev) => ({ ...prev, [organizer.id]: false }));
+            setActionLoading({ ...actionLoading, [organizer.id]: false });
         }
         };
 
-    const handleDeny = async (organizerId: string) => {
-        setActionLoading((prev) => ({ ...prev, [organizerId]: true }));
+    const handleDeny = async () => {
+        if (!confirmAction || confirmAction.action !== 'deny') return;
+        const { organizer } = confirmAction;
+        setActionLoading({ ...actionLoading, [organizer.id]: true });
         try {
-        const organizerRef = doc(db, "pendingOrganizers", organizerId);
+        const organizerRef = doc(db, "pendingOrganizers", organizer.id);
         await updateDoc(organizerRef, { status: "denied" });
         alert("Organizer denied.");
+        setConfirmAction(null);
         } catch (error: any) {
         console.error("Failed to deny organizer:", error);
         alert("Error denying organizer.");
         } finally {
-        setActionLoading((prev) => ({ ...prev, [organizerId]: false }));
+        setActionLoading({ ...actionLoading, [organizer.id]: false });
         }
     };
 
@@ -144,6 +154,7 @@
                     <TableHeader>
                     <TableRow className="border-zinc-200 bg-white shadow-lg">
                         <TableHead className="text-zinc-600">Name</TableHead>
+                        <TableHead className="text-zinc-600">Organizer Name</TableHead>
                         <TableHead className="text-zinc-600">Email</TableHead>
                         <TableHead className="text-right text-zinc-600">
                         Actions
@@ -160,6 +171,9 @@
                             {organizer.firstName} {organizer.lastName}
                         </TableCell>
                         <TableCell className="text-zinc-700">
+                            {organizer.organizerName}
+                        </TableCell>
+                        <TableCell className="text-zinc-700">
                             {organizer.email}
                         </TableCell>
                         <TableCell className="text-right">
@@ -168,7 +182,7 @@
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleApprove(organizer)}
+                                onClick={() => setConfirmAction({ action: 'approve', organizer })}
                                 disabled={actionLoading[organizer.id]}
                                 className="text-green-500 hover:bg-green-100"
                             >
@@ -177,7 +191,7 @@
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleDeny(organizer.id)}
+                                onClick={() => setConfirmAction({ action: 'deny', organizer })}
                                 disabled={actionLoading[organizer.id]}
                                 className="text-red-500 hover:bg-red-100"
                             >
@@ -193,6 +207,41 @@
             )}
             </CardContent>
         </Card>
+
+        <AnimatePresence>
+            {confirmAction && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-4">
+                    <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }} className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+                        <h3 className="text-lg font-bold text-gray-900">
+                            Confirm {confirmAction.action === 'approve' ? 'Approval' : 'Rejection'}
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-2">
+                            Are you sure you want to {confirmAction.action} the organizer "{confirmAction.organizer.firstName} {confirmAction.organizer.lastName}"?
+                        </p>
+                        <div className="mt-6 flex justify-end gap-3">
+                            <Button variant="ghost" onClick={() => setConfirmAction(null)} className="hover:bg-gray-200">Cancel</Button>
+                            <Button
+                                onClick={confirmAction.action === 'approve' ? handleApprove : handleDeny}
+                                disabled={actionLoading[confirmAction.organizer.id]}
+                                className={confirmAction.action === 'approve'
+                                    ? "bg-green-600 text-white hover:bg-green-700"
+                                    : "bg-red-600 text-white hover:bg-red-700"
+                                }
+                            >
+                                {actionLoading[confirmAction.organizer.id] ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Processing...
+                                    </>
+                                ) : (
+                                    confirmAction.action === 'approve' ? 'Approve' : 'Reject'
+                                )}
+                            </Button>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
         </div>
     );
     }

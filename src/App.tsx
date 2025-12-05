@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import { ProtectedRoute } from "@/shared/components/ProtectedRoute"
+import { useEventReminders } from "@/hooks/useEventReminders"
 
 // ---------- PUBLIC PAGES ----------
 import Login from "@/auth/adminAuth/Login"
@@ -16,6 +17,8 @@ import PendingOrganizersPage from "@/pages/admin/PendingOrg"
 import ApprovedOrganizersHistoryPage from "@/pages/admin/ApproveHistory"
 import AddEventPage from "@/pages/admin/AddEventPage"
 import AnalyticsPage from "@/pages/admin/Analytics"
+import AdminEditEventPage from "@/pages/admin/EditEventPage"
+import AdminProfilePage from "@/pages/admin/AdminProfilePage"
 import AdminLayout from "@/shared/components/layout/adminlayout/Layout"
 
 // ---------- ORGANIZER ----------
@@ -27,6 +30,7 @@ import EventDetails from "@/pages/organizer/EventDetails"
 import StatisticsPage from "@/pages/organizer/orgstats"
 import OrgEventPage from "@/pages/organizer/addEvent"
 import EditEventPage from "@/pages/organizer/EditEventPage"
+import OrganizerProfile from "@/pages/organizer/OrganizerProfile"
 
 // ---------- STUDENT ----------
 import StudentLayout from "@/shared/components/layout/studentLayout/studentLayout"
@@ -37,8 +41,13 @@ import StudentEvents from "@/pages/student/StudentEvents"
 import StudentMessages from "@/pages/student/StudentMEssages"
 import StudentSettings from "@/pages/student/StudentSettings"
 import StudentProfilePage from "@/pages/student/StudentProfilePage"
+import StudentAttendancePage from "@/pages/student/StudentAttendance"
+import SavedEventsPage from "@/pages/student/SavedEvents"
+
 
 function App() {
+  useEventReminders()
+
   return (
     <BrowserRouter>
       <Routes>
@@ -65,6 +74,8 @@ function App() {
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="events" element={<EventsPage />} />
           <Route path="add-event" element={<AddEventPage />} />
+          <Route path="edit-event/:eventId" element={<AdminEditEventPage />} />
+          <Route path="profile" element={<AdminProfilePage />} />
         </Route>
 
         {/* ---------- ORGANIZER ROUTES ---------- */}
@@ -80,15 +91,10 @@ function App() {
           <Route path="add-event" element={<OrgEventPage />} />
           <Route path="statistics" element={<StatisticsPage />} />
           <Route path="edit-event/:eventId" element={<EditEventPage />} />
-
-          {/* Event Details */}
           <Route path=":organizerId/events/:eventId" element={<EventDetails />} />
-
-          {/* Event Attendance (NOW INSIDE /organizer PROTECTED ROUTE) */}
           <Route path="attendance/:eventId" element={<EventAttendance />} />
-
-          {/* QR Scanner */}
           <Route path="scan/:eventId" element={<AttendanceScanner />} />
+          <Route path="profile" element={<OrganizerProfile />} />
         </Route>
 
         {/* ---------- STUDENT ROUTES ---------- */}
@@ -107,6 +113,8 @@ function App() {
           <Route path="messages" element={<StudentMessages />} />
           <Route path="settings" element={<StudentSettings />} />
           <Route path="profile" element={<StudentProfilePage />} />
+          <Route path="attendance" element={<StudentAttendancePage />} />
+          <Route path="saved" element={<SavedEventsPage />} />
         </Route>
 
         {/* ---------- CATCH ALL ---------- */}

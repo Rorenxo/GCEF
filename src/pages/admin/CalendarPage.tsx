@@ -1,17 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useEvents } from "@/hooks/useEvents"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Calendar, MapPin, User, BookOpen, Users, Eye } from "lucide-react"
 import { isSameDay, format } from "date-fns"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/shared/components/ui/dialog"
+import { Dialog, DialogContent } from "@/shared/components/ui/dialog"
 import type { Event } from "@/types"
 
 const departmentColors: Record<string, string> = {
@@ -28,15 +22,26 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
+  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [isZoomed, setIsZoomed] = useState(false)
   const navigate = useNavigate()
 
   const handleDateClick = (date: Date) => {
-    navigate("/add-event")
+    // This function is not used in the current implementation, but kept for potential future use.
+    navigate("/admin/add-event")
   }
 
   const handleEventClick = (event: Event) => {
     setSelectedEvent(event)
     setModalOpen(true)
+    const images = (event as any).imageUrls || []
+    if (images.length > 0) {
+      setImageUrls(images)
+    } else if (event.imageUrl) {
+      setImageUrls([event.imageUrl])
+    } else {
+      setImageUrls([])
+    }
   }
 
   const getDaysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
@@ -128,48 +133,101 @@ export default function CalendarPage() {
       </div>
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-2xl p-0 border-none bg-white">
+        <DialogContent className="p-0 border-none bg-white text-zinc-900 shadow-xl w-full max-w-4xl h-[90vh] flex flex-col md:flex-row overflow-hidden">
           {selectedEvent && (
-            <div>
-              <img
-                src={selectedEvent.imageUrl || "/placeholder.jpg"}
-                alt={selectedEvent.eventName}
-                className="w-full h-64 object-cover rounded-t-lg"
-              />
-              <div className="p-6">
-                <DialogHeader className="mb-4">
-                  <DialogTitle className="text-2xl font-bold text-gray-900">{selectedEvent.eventName}</DialogTitle>
-                  <DialogDescription className="text-sm text-gray-500">
-                    {selectedEvent.department} • {selectedEvent.location}
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-gray-700">Description</h4>
-                    <p className="text-gray-600">{selectedEvent.description}</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div>
-                      <h4 className="font-semibold text-gray-700">Start Date</h4>
-                      <p className="text-gray-600">{format(selectedEvent.startDate, "MMM d, yyyy, h:mm a")}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-700">End Date</h4>
-                      <p className="text-gray-600">{format(selectedEvent.endDate, "MMM d, yyyy, h:mm a")}</p>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-700">Professor</h4>
-                      <p className="text-gray-600">{selectedEvent.professor}</p>
-                    </div>
+            <>
+              {/* Left Side: Image grid */}
+              <div className="w-full md:w-1/2 h-auto md:h-full bg-gray-100 flex-shrink-0 flex flex-col overflow-hidden">
+                <div className="relative w-full h-64 md:flex-1">
+                  {imageUrls.length > 0 ? (
+                    <img src={imageUrls[0]} alt={selectedEvent.eventName} className={`w-full h-full transition-all duration-300 ${isZoomed ? 'object-contain' : 'object-cover'}`} />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">No Image</div>
+                  )}
+                  {imageUrls.length > 0 && (
+                    <button
+                      onClick={() => setIsZoomed(prev => !prev)}
+                      className="absolute bottom-3 right-3 bg-black/40 hover:bg-black/60 backdrop-blur-sm rounded-full p-2 shadow-lg transition-all z-10"
+                      title={isZoomed ? "Zoom out" : "Zoom in"}
+                    >
+                      <Eye className="h-5 w-5 text-white" />
+                    </button>
+                  )}
+                </div>
+                <div className="flex-shrink-0 p-2 bg-gray-50">
+                  <div className="flex gap-2">
+                    {imageUrls.length > 1 && imageUrls.slice(1, 5).map((u, i) => (
+                      <div key={i} className="w-1/4 h-20 overflow-hidden rounded-md bg-gray-200">
+                        <img src={u} alt={`${selectedEvent.eventName}-${i + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
+
+              {/* Right Side: Details */}
+              <div className="w-full md:w-1/2 flex flex-col overflow-hidden">
+                <div className="p-6 border-b border-gray-200 flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">{selectedEvent.eventName || 'N/A'}</h2>
+                    <p className="text-sm text-gray-500 mt-1">{selectedEvent.organizerName || selectedEvent.professor || 'N/A'}</p>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Description</h3>
+                    <p className="text-gray-700 whitespace-pre-wrap">{selectedEvent.description || 'N/A'}</p>
+                  </div>
+
+                  <div className="space-y-4 pt-4 border-t border-gray-200">
+                    <DetailItem icon={Calendar} label="Date & Time" value={`${format(selectedEvent.startDate, "MMM d, yyyy, h:mm a")} to ${format(selectedEvent.endDate, "MMM d, yyyy, h:mm a")}`} />
+                    <DetailItem icon={MapPin} label="Location" value={selectedEvent.location} />
+                    <DetailItem icon={User} label="Organizer / Professor" value={selectedEvent.professor || selectedEvent.organizerName} subValue={selectedEvent.organizerEmail} />
+                    <DetailItem icon={Users} label="Department" value={selectedEvent.department} />
+                    <DetailItem icon={BookOpen} label="Event Type" value={selectedEvent.eventType} />
+                    <DetailItem icon={Users} label="Max Participants" value={selectedEvent.maxParticipants?.toString()} />
+                    
+                    {selectedEvent.speakers && selectedEvent.speakers.length > 0 && (
+                      <DetailItem icon={User} label="Speakers" value={selectedEvent.speakers.map(s => s.name).join(', ')} />
+                    )}
+
+                    {selectedEvent.registrationLinks && selectedEvent.registrationLinks.length > 0 && (
+                      <div className="flex items-start gap-3">
+                        <Calendar className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-800">Registration Links</p>
+                          <div className="text-sm text-gray-600">
+                            <ul className="list-disc pl-5">
+                              {selectedEvent.registrationLinks.map((r, idx) => (
+                                <li key={idx}><a className="text-blue-600 underline" href={r.url} target="_blank" rel="noreferrer">{r.title || r.url}</a></li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </DialogContent>
       </Dialog>
     </div>
   )
 }
+
+const DetailItem = ({ icon: Icon, label, value, subValue }: { icon: React.ElementType, label: string, value?: string | null, subValue?: string | null }) => {
+  if (!value) return null;
+  return (
+    <div className="flex items-start gap-3">
+      <Icon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+      <div>
+        <p className="text-sm font-medium text-gray-800">{label}</p>
+        <p className="text-sm text-gray-600">{value || 'N/A'}</p>
+        {subValue && <p className="text-xs text-gray-500">{subValue}</p>}
+      </div>
+    </div>
+  );
+};

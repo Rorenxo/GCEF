@@ -95,7 +95,6 @@ export default function EventDetails() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Back Button */}
       <div className="max-w-7xl mx-auto px-6 py-4">
         <Link
           to="/organizer"
@@ -104,8 +103,6 @@ export default function EventDetails() {
           <ArrowLeft className="h-4 w-4 mr-2" /> Back to Events
         </Link>
       </div>
-
-      {/* Event Layout */}
       {hasMultipleImages ? (
         <div className="relative max-w-7xl mx-auto overflow-hidden rounded-3xl shadow-lg">
           <div className="grid grid-cols-1 sm:grid-cols-2 h-[70vh]">
@@ -123,16 +120,12 @@ export default function EventDetails() {
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               {event.eventName}
             </h1>
-
-            {/* QR Scanner Button */}
             <Link
               to={`../scan/${eventId}`}
               className="inline-block px-4 py-2 mb-4 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition"
             >
               Open QR Scanner
             </Link>
-
-            {/* View Attendance Button */}
             <Link
               to={`../attendance/${eventId}`}
               className="inline-block px-4 py-2 mb-6 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"

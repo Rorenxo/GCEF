@@ -1,5 +1,6 @@
 "use client"
 
+import { addDays, startOfDay } from "date-fns"
 import React, { useEffect, useMemo, useState, useRef } from "react"
 import { motion } from "framer-motion"
 import {
@@ -12,12 +13,14 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
+  Sector,
   Cell,
 } from "recharts"
-import { collection, onSnapshot } from "firebase/firestore"
+import { collection, onSnapshot, query, where, Timestamp, getDocs } from "firebase/firestore"
+import { Button } from "@/shared/components/ui/button"
 import { db } from "@/lib/firebase"
 import { cn } from "@/lib/utils"
-import { CreditCard, Users, Calendar, FileDown } from "lucide-react"
+import { CreditCard, Users, Calendar, FileDown, ArrowDown, ArrowUp } from "lucide-react"
 import html2canvas from "html2canvas"
 import jsPDF from "jspdf"
 
@@ -25,6 +28,7 @@ type StudentDoc = {
   id?: string
   name?: string
   department?: string
+  createdAt?: Timestamp
   [k: string]: any
 }
 
@@ -33,6 +37,7 @@ type EventDoc = {
   eventName?: string
   department?: string
   organizerId?: string
+  createdAt?: Timestamp
   [k: string]: any
 }
 
@@ -40,14 +45,17 @@ type OrganizerDoc = {
   id?: string
   name?: string
   [k: string]: any
+  createdAt?: Timestamp
 }
 
 const SummaryCard: React.FC<{
   title: string
   value: number | string
   icon?: React.ReactNode
+  change?: number
+  changeLabel?: string
   className?: string
-}> = ({ title, value, icon, className = "" }) => (
+}> = ({ title, value, icon, change, changeLabel, className = "" }) => (
   <motion.div
     initial={{ opacity: 0, y: 8 }}
     animate={{ opacity: 1, y: 0 }}
@@ -60,8 +68,21 @@ const SummaryCard: React.FC<{
     <div>
       <p className="text-xs text-zinc-500">{title}</p>
       <p className="mt-2 text-2xl font-semibold text-zinc-900">{value}</p>
+      {change !== undefined && changeLabel && (
+        <div className="flex items-center text-xs text-zinc-500 mt-1">
+          {change > 0 ? (
+            <ArrowUp className="h-3 w-3 text-green-500 mr-1" />
+          ) : change < 0 ? (
+            <ArrowDown className="h-3 w-3 text-red-500 mr-1" />
+          ) : null}
+          <span className={cn(change > 0 ? "text-green-600" : change < 0 ? "text-red-600" : "")}>
+            {change > 0 ? "+" : ""}{change}
+          </span>
+          <span className="ml-1">{changeLabel}</span>
+        </div>
+      )}
     </div>
-    <div className="ml-4 text-zinc-500">{icon}</div>
+    <div className="text-zinc-500">{icon}</div>
   </motion.div>
 )
 
@@ -74,6 +95,45 @@ const DEPARTMENT_COLORS: Record<string, string> = {
   ALL: "#9ca3af",
 }
 
+const renderActiveShape = (props: any) => {
+  const RADIAN = Math.PI / 180
+  const { cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent, value } = props
+  const sin = Math.sin(-RADIAN * midAngle)
+  const cos = Math.cos(-RADIAN * midAngle)
+  const sx = cx + (outerRadius + 6) * cos
+  const sy = cy + (outerRadius + 6) * sin
+  const mx = cx + (outerRadius + 20) * cos
+  const my = cy + (outerRadius + 20) * sin
+  const ex = mx + (cos >= 0 ? 1 : -1) * 18
+  const ey = my
+  const textAnchor = cos >= 0 ? "start" : "end"
+
+  return (
+    <g>
+      <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill} className="font-bold">
+        {payload.name}
+      </text>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+      />
+      <Sector
+        cx={cx}
+        cy={cy}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        innerRadius={outerRadius + 6}
+        outerRadius={outerRadius + 10}
+        fill={fill}
+      />
+    </g>
+  )
+}
 const DEFAULT_COLORS = Object.values(DEPARTMENT_COLORS)
 
 export default function Dashboard() {
@@ -81,6 +141,14 @@ export default function Dashboard() {
   const [events, setEvents] = useState<EventDoc[]>([])
   const [organizers, setOrganizers] = useState<OrganizerDoc[]>([])
   const [loading, setLoading] = useState(true)
+  const [timeFilter, setTimeFilter] = useState<"7d" | "30d" | "all">("30d")
+  const [activePieIndex, setActivePieIndex] = useState(0)
+
+  const [studentStats, setStudentStats] = useState({ total: 0, change: 0 })
+  const [eventStats, setEventStats] = useState({ total: 0, change: 0 })
+  const [organizerStats, setOrganizerStats] = useState({ total: 0, change: 0 })
+
+
   const [dateTime, setDateTime] = useState<string>("")
   const dashboardRef = useRef<HTMLDivElement>(null)
 
@@ -103,40 +171,64 @@ export default function Dashboard() {
     return () => clearInterval(interval)
   }, [])
 
-useEffect(() => {
-  setLoading(true)
-  const unsubStudents = onSnapshot(collection(db, "students"), (snap) => {
-    const arr = snap.docs.map((d) => ({ id: d.id, ...(d.data() as StudentDoc) }))
-    setStudents(arr)
-  })
+  useEffect(() => {
+    setLoading(true)
 
-  const unsubEvents = onSnapshot(collection(db, "events"), (snap) => {
-    const arr = snap.docs.map((d) => ({ id: d.id, ...(d.data() as EventDoc) }))
-    setEvents(arr)
-  })
+    const getQuery = (collectionName: string) => {
+      if (timeFilter === "all") {
+        return collection(db, collectionName)
+      }
+      const days = timeFilter === "7d" ? 7 : 30
+      const startDate = startOfDay(addDays(new Date(), -days))
+      return query(collection(db, collectionName), where("createdAt", ">=", Timestamp.fromDate(startDate)))
+    }
 
-  const unsubOrganizers = onSnapshot(collection(db, "organizers"), (snap) => {
-    const arr = snap.docs.map((d) => {
-      const data = d.data() as OrganizerDoc
-      return { id: d.id, uid: data.uid ?? d.id, ...data }
-    })
-    setOrganizers(arr)
-  })
+    const getPrevQuery = (collectionName: string) => {
+      if (timeFilter === "all") return null
+      const days = timeFilter === "7d" ? 7 : 30
+      const startDate = startOfDay(addDays(new Date(), -days * 2))
+      const endDate = startOfDay(addDays(new Date(), -days))
+      return query(collection(db, collectionName), where("createdAt", ">=", Timestamp.fromDate(startDate)), where("createdAt", "<", Timestamp.fromDate(endDate)))
+    }
 
-  const t = setTimeout(() => setLoading(false), 600)
-  return () => {
-    unsubStudents()
-    unsubEvents()
-    unsubOrganizers()
-    clearTimeout(t)
-  }
-}, [])
+    const createSubscription = (
+      collectionName: string,
+      setData: React.Dispatch<React.SetStateAction<any[]>>,
+      setStats: React.Dispatch<React.SetStateAction<{ total: number; change: number }>>
+    ) => {
+      const q = getQuery(collectionName)
+      const unsub = onSnapshot(q, async (snap) => {
+        const currentData = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        setData(currentData)
+
+        const prevQ = getPrevQuery(collectionName)
+        let prevCount = 0
+        if (prevQ) {
+          const prevSnap = await getDocs(prevQ)
+          prevCount = prevSnap.size
+        }
+        
+        setStats({ total: snap.size, change: snap.size - prevCount })
+      })
+      return unsub
+    }
+
+    const unsubStudents = createSubscription("students", setStudents, setStudentStats)
+    const unsubEvents = createSubscription("events", setEvents, setEventStats)
+    const unsubOrganizers = createSubscription("organizers", setOrganizers, setOrganizerStats)
+
+    const t = setTimeout(() => setLoading(false), 800)
+
+    return () => {
+      unsubStudents()
+      unsubEvents()
+      unsubOrganizers()
+      clearTimeout(t)
+    }
+  }, [timeFilter])
 
 
-
-  const totalStudents = students.length
-  const totalEvents = events.length
-  const totalOrganizers = organizers.length
+  const timeFilterLabel = timeFilter === "7d" ? "last 7 days" : timeFilter === "30d" ? "last 30 days" : ""
 
   const eventsPerDepartment = useMemo(() => {
     const map = new Map<string, number>()
@@ -162,11 +254,11 @@ const organizerActivity = useMemo(() => {
   })
 
   const arr = Array.from(map.entries()).map(([organizerUid, count]) => {
-    const org = organizers.find((o: any) => o.uid === organizerUid )
+    const org = organizers.find((o: any) => o.id === organizerUid )
     const fullName = org
       ? `${org.firstName ?? ""} ${org.lastName ?? ""}`.trim() || org.email
       : `Unknown Organizer`
-    return { organizerUid, name: fullName, count }
+    return { organizerUid, name: fullName, count, photoURL: org?.photoURL }
   })
 
   arr.sort((a, b) => b.count - a.count)
@@ -239,6 +331,12 @@ const topOrganizersPie = useMemo(() => {
             Overview of students, events, and organizers
           </p>
         </div>
+        <div className="flex items-center gap-1 bg-gray-200 p-1 rounded-lg">
+          <Button size="sm" variant={timeFilter === '7d' ? 'default' : 'ghost'} onClick={() => setTimeFilter('7d')} className="transition-all">Last 7 Days</Button>
+          <Button size="sm" variant={timeFilter === '30d' ? 'default' : 'ghost'} onClick={() => setTimeFilter('30d')} className="transition-all">Last 30 Days</Button>
+          <Button size="sm" variant={timeFilter === 'all' ? 'default' : 'ghost'} onClick={() => setTimeFilter('all')} className="transition-all">All Time</Button>
+        </div>
+
 
         <motion.button
           whileTap={{ scale: 0.95 }}
@@ -254,18 +352,24 @@ const topOrganizersPie = useMemo(() => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-3">
           <SummaryCard
             title="Total Students"
-            value={loading ? "…" : totalStudents}
+            value={loading ? "…" : studentStats.total}
             icon={<Users className="h-6 w-6 text-zinc-400" />}
+            change={studentStats.change}
+            changeLabel={timeFilterLabel}
           />
           <SummaryCard
             title="Total Events"
-            value={loading ? "…" : totalEvents}
+            value={loading ? "…" : eventStats.total}
             icon={<Calendar className="h-6 w-6 text-zinc-400" />}
+            change={eventStats.change}
+            changeLabel={timeFilterLabel}
           />
           <SummaryCard
             title="Total Organizers"
-            value={loading ? "…" : totalOrganizers}
+            value={loading ? "…" : organizerStats.total}
             icon={<CreditCard className="h-6 w-6 text-zinc-400" />}
+            change={organizerStats.change}
+            changeLabel={timeFilterLabel}
           />
         </div>
 
@@ -288,9 +392,9 @@ const topOrganizersPie = useMemo(() => {
                 <BarChart data={deptChartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="department" tick={{ fontSize: 12 }} />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip cursor={{ fill: 'rgba(200, 200, 200, 0.1)' }} />
+                  <Bar dataKey="count" radius={[8, 8, 0, 0]} activeBar={{ fillOpacity: 0.8 }}>
                     {deptChartData.map((entry: any, idx: number) => (
                       <Cell
                         key={`cell-${idx}`}
@@ -306,7 +410,6 @@ const topOrganizersPie = useMemo(() => {
             </div>
           </motion.div>
 
-          {/* Most Active Organizer */}
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -324,16 +427,17 @@ const topOrganizersPie = useMemo(() => {
               <div style={{ width: 240, height: 240 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
+                    <Tooltip />
                     <Pie
+                      activeIndex={activePieIndex}
+                      activeShape={renderActiveShape}
                       data={topOrganizersPie}
                       dataKey="value"
                       nameKey="name"
                       innerRadius={62}
                       outerRadius={90}
                       paddingAngle={4}
-                      label={(entry: any) =>
-                        entry.value > 0 ? `${entry.name} (${entry.value})` : ""
-                      }
+                      onMouseEnter={(_, index) => setActivePieIndex(index)}
                     >
                       {topOrganizersPie.map((entry, index) => (
                         <Cell
@@ -360,13 +464,17 @@ const topOrganizersPie = useMemo(() => {
                       >
                         <div className="flex items-center gap-3">
                           <div
-                            className="h-10 w-10 flex items-center justify-center rounded-md text-white font-semibold"
+                            className="h-10 w-10 flex items-center justify-center rounded-md text-white font-semibold overflow-hidden"
                             style={{
                               background:
                                 DEFAULT_COLORS[idx % DEFAULT_COLORS.length],
                             }}
                           >
-                            {o.name?.slice(0, 2).toUpperCase()}
+                            {o.photoURL ? (
+                              <img src={o.photoURL} alt={o.name} className="w-full h-full object-cover" />
+                            ) : (
+                              o.name?.slice(0, 2).toUpperCase()
+                            )}
                           </div>
                           <div className="min-w-0">
                             <p className="font-medium text-sm truncate mb-1.5">
