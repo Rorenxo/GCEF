@@ -1,8 +1,8 @@
 "use client"
-
+import termsBg from '@/assets/termsbg.jpg';
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card"
 import React, { useState, useEffect } from "react"
-
+import termsbg from '@/assets/termsbg.jpg';
 function Terms() {
   const [currentDate, setCurrentDate] = useState("")
 
@@ -25,7 +25,7 @@ function Terms() {
     <div
       className="flex min-h-screen items-center justify-center bg-zinc-100 p-6 relative"
       style={{
-        backgroundImage: "url('/src/assets/termsbg.jpg')",
+        backgroundImage: `url(${termsbg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

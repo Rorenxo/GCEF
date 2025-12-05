@@ -9,6 +9,15 @@
   import { format } from "date-fns"
   import { useStudentLayoutContext } from "@/shared/components/layout/studentLayout/studentLayout"
   import { useNotification } from "@/shared/context/NotificationContext"
+  import APERTURA from '@/assets/APERTURA.png';
+import FOUNDING from '@/assets/FOUNDING.jpg';
+import SPORTSFEST from '@/assets/SPORTSFEST.png';
+import ACC from '@/assets/ACC.jpg';
+import campusEvent from '@/assets/campusEvent.jpg';
+import gcSeminar from '@/assets/gcSeminar.jpg';
+import gcAct from '@/assets/gcAct.jpg';
+import socialGC from '@/assets/socialGC.jpg';
+
 
   type EventType = {
     id: string
@@ -43,31 +52,31 @@
   }
 
   const featuredEventsData = [
-    {
-      id: 'featured-1',
-      title: 'GC APERTURA',
-      description: 'Witness the clash of champions. A week of sports, spirit, and unity.',
-      imageUrl: 'src/assets/APERTURA.png',
-    },
-    {
-      id: 'featured-2',
-      title: 'GC Foundation Week',
-      description: 'Celebrate our history and future with a series of special events and activities.',
-      imageUrl: 'src/assets/FOUNDING.jpg',
-    },
-    {
-      id: 'featured-3',
-      title: 'GC SIKLAB SPORTFEST',
-      description: 'Explore the future of technology with industry leaders and innovators.',
-      imageUrl: 'src/assets/SPORTSFEST.png',
-    },
-    {
-      id: 'featured-4',
-      title: 'GC-CCS ACQUAINTANCE',
-      description: 'A vibrant showcase of student talent in music, dance, and visual arts.',
-      imageUrl: 'src/assets/ACC.jpg',
-    }
-  ];
+  {
+    id: 'featured-1',
+    title: 'GC APERTURA',
+    description: 'Witness the clash of champions. A week of sports, spirit, and unity.',
+    imageUrl: APERTURA,
+  },
+  {
+    id: 'featured-2',
+    title: 'GC Foundation Week',
+    description: 'Celebrate our history and future with a series of special events and activities.',
+    imageUrl: FOUNDING,
+  },
+  {
+    id: 'featured-3',
+    title: 'GC SIKLAB SPORTFEST',
+    description: 'Explore the future of technology with industry leaders and innovators.',
+    imageUrl: SPORTSFEST,
+  },
+  {
+    id: 'featured-4',
+    title: 'GC-CCS ACQUAINTANCE',
+    description: 'A vibrant showcase of student talent in music, dance, and visual arts.',
+    imageUrl: ACC,
+  }
+];
 
   export default function StudentFeed() {
     const [events, setEvents] = useState<EventType[]>([])
@@ -319,34 +328,34 @@
             </div>
             <div className="px-4 md:px-8 py-6">
               <div className="flex overflow-x-auto sm:grid sm:grid-cols-4 gap-4 md:gap-6 pb-2 -mb-2 ">
-                <FilterCard
-                  label="All Events"
-                  imageUrl="src/assets/campusEvent.jpg"
-                  isActive={activeFilter === 'All'}
-                  onClick={() => setActiveFilter('All')}
-                  className="flex-shrink-0 w-20 sm:w-auto"
-                />
-                <FilterCard
-                  label="Seminars"
-                  imageUrl="src/assets/gcSeminar.jpg"
-                  isActive={activeFilter === 'Seminar'}
-                  onClick={() => setActiveFilter('Seminar')}
-                  className="flex-shrink-0 w-28 sm:w-auto"
-                />
-                <FilterCard
-                  label="Activities"
-                  imageUrl="src/assets/gcAct.jpg"
-                  isActive={activeFilter === 'Activity'}
-                  onClick={() => setActiveFilter('Activity')}
-                  className="flex-shrink-0 w-28 sm:w-auto"
-                />
-                <FilterCard
-                  label="Social"
-                  imageUrl="src/assets/socialGC.jpg"
-                  isActive={activeFilter === 'Social'}
-                  onClick={() => setActiveFilter('Social')}
-                  className="flex-shrink-0 w-28 sm:w-auto"
-                />
+             <FilterCard
+  label="All Events"
+  imageUrl={campusEvent}
+  isActive={activeFilter === 'All'}
+  onClick={() => setActiveFilter('All')}
+  className="flex-shrink-0 w-20 sm:w-auto"
+/>
+<FilterCard
+  label="Seminars"
+  imageUrl={gcSeminar}
+  isActive={activeFilter === 'Seminar'}
+  onClick={() => setActiveFilter('Seminar')}
+  className="flex-shrink-0 w-28 sm:w-auto"
+/>
+<FilterCard
+  label="Activities"
+  imageUrl={gcAct}
+  isActive={activeFilter === 'Activity'}
+  onClick={() => setActiveFilter('Activity')}
+  className="flex-shrink-0 w-28 sm:w-auto"
+/>
+<FilterCard
+  label="Social"
+  imageUrl={socialGC}
+  isActive={activeFilter === 'Social'}
+  onClick={() => setActiveFilter('Social')}
+  className="flex-shrink-0 w-28 sm:w-auto"
+/>
               </div>
             </div>
 

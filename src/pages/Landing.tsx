@@ -4,6 +4,9 @@
     import '@/index.css';
     import '@/animations.css'; 
     import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
+    import gcefLogo from '@/assets/gcef1.png';
+    import headerBg from '@/assets/gc.jpg';
+    import ctaBg from '@/assets/regCTA.jpg';
     import { cn } from '@/lib/utils';
 
 
@@ -15,8 +18,8 @@
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     <div className="hidden md:flex items-center">
-                        <a href="/" className="flex-shrink-0 flex items-center gap-2">
-                            <img className="h-10 w-auto" src="src/assets/gcef1.png" alt="GCEF Logo" />
+                        <a href="/" className="flex-shrink-0 flex items-center gap-2"> 
+                            <img className="h-10 w-auto" src={gcefLogo} alt="GCEF Logo" />
                             <span className="font-extrabold text-xl text-white hidden sm:block">GCEF</span>
                         </a>
                     </div>
@@ -58,7 +61,7 @@
         <header 
             className="bg-[#7cb93c] text-white relative overflow-hidden"
             style={{
-            backgroundImage: 'url(src/assets/gc.jpg)', 
+            backgroundImage: `url(${headerBg})`, 
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             }}
@@ -70,7 +73,7 @@
                 <div className="flex justify-center items-center gap-6 mb-6">
                 <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg border-4 border-white/80">
                     <img
-                    src="src/assets/gcef1.png"
+                    src={gcefLogo}
                     alt="GCEF Logo"
                     className="w-full h-full object-cover"
                     />
@@ -202,7 +205,7 @@
 
         <section 
             className="relative bg-contain bg-center py-24"
-            style={{ backgroundImage: "url('/src/assets/regCTA.jpg')" }}
+            style={{ backgroundImage: `url(${ctaBg})` }}
         >
             <div className="absolute inset-0 bg-[#7cb93c] opacity-80"></div>
             <div className="relative max-w-4xl mx-auto px-6 sm:px-6 lg:px-8 text-center text-white animate-fade-in">
