@@ -27,7 +27,6 @@ export default function CalendarPage() {
   const navigate = useNavigate()
 
   const handleDateClick = (date: Date) => {
-    // This function is not used in the current implementation, but kept for potential future use.
     navigate("/admin/add-event")
   }
 

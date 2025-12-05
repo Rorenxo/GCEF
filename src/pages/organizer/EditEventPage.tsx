@@ -5,22 +5,7 @@ import { AnimatePresence } from "framer-motion"
 import { useNavigate, useParams } from "react-router-dom"
 import { useEvents } from "@/hooks/useEvents"
 import EventForm from "@/shared/components/events/EventForm"
-import type { EventFormData } from "@/types"
-
-type EventWithImages = {
-  id: string
-  eventName: string
-  department: string
-  location: string
-  startDate: Date
-  endDate: Date
-  professor: string
-  description: string
-  imageUrl: string
-  imageUrls: string[]
-  createdAt: Date
-  updatedAt: Date
-}
+import type { EventFormData, Event } from "@/types"
 import { uploadImage } from "@/lib/imageUpload"
 import { doc, getDoc } from "firebase/firestore"
 import { db } from "@/lib/firebase"
@@ -28,7 +13,7 @@ import SuccessNotification from "@/shared/components/events/successNotif"
 
 export default function EditEventPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [eventData, setEventData] = useState<EventWithImages | undefined>(undefined)
+  const [eventData, setEventData] = useState<Event | undefined>(undefined)
   const navigate = useNavigate()
   const { eventId } = useParams<{ eventId: string }>()
   const { updateEvent } = useEvents()
@@ -45,20 +30,9 @@ export default function EditEventPage() {
 
         if (docSnap.exists()) {
           const data = docSnap.data()
-          setEventData({
-            id: docSnap.id,
-            eventName: data.eventName || "Untitled Event",
-            department: data.department || "Unknown Department",
-            location: data.location || "No location specified",
-            startDate: data.startDate?.toDate?.() || new Date(),
-            endDate: data.endDate?.toDate?.() || new Date(),
-            professor: data.professor || "Gordon College",
-            description: data.description || "No description available.",
-            imageUrl: data.imageUrl || "",
-            imageUrls: Array.isArray(data.imageUrls) ? data.imageUrls : data.imageUrl ? [data.imageUrl] : [],
-            createdAt: data.createdAt?.toDate?.() || new Date(),
-            updatedAt: data.updatedAt?.toDate?.() || new Date(),
-          })
+          // Fetch all data and convert timestamps
+          const fetchedEvent: Event = { id: docSnap.id, ...data, startDate: data.startDate?.toDate(), endDate: data.endDate?.toDate() } as Event;
+          setEventData(fetchedEvent);
         } else {
           console.error("No such event!")
           alert("Event not found.")
@@ -95,12 +69,15 @@ export default function EditEventPage() {
       }
 
       await updateEvent(eventId, eventDetails, imageUrls)
+      
       setShowSuccess(true)
       setTimeout(() => {
+        setShowSuccess(false)
         navigate("/organizer")
       }, 2000)
     } catch (error: any) {
       console.error("Failed to update event:", error)
+      alert(error.message || "Failed to update event.")
     } finally {
       setIsLoading(false)
     }

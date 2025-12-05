@@ -72,7 +72,7 @@
   export default function StudentFeed() {
     const [events, setEvents] = useState<EventType[]>([])
     const [loading, setLoading] = useState(true)
-    const { searchQuery } = useStudentLayoutContext();
+    const { searchQuery, selectedDepartment } = useStudentLayoutContext();
     const [activeFilter, setActiveFilter] = useState('All');
     const { user } = useAuth()
     const [commentModalEvent, setCommentModalEvent] = useState<EventType | null>(null)
@@ -255,8 +255,10 @@
         const eventCategory = getCategoryFromEventType(event.eventType);
         const categoryMatch = activeFilter === 'All' || eventCategory === activeFilter;
         const notCancelled = event.status !== "Canceled";
+        
+        const departmentMatch = selectedDepartment === 'All' || event.department === selectedDepartment;
 
-        return searchMatch && categoryMatch && notCancelled;
+        return searchMatch && categoryMatch && notCancelled && departmentMatch;
     }
     )
 
@@ -266,11 +268,7 @@
     endOfToday.setHours(23, 59, 59, 999)
     const sevenDaysFromNow = new Date(today)
     sevenDaysFromNow.setDate(today.getDate() + 7)
-
-    const trendingEvents = searchFilteredEvents
-      .filter(event => event.startDate >= today && (event.hearts?.length || 0) > 0) 
-      .sort((a, b) => (b.hearts?.length || 0) - (a.hearts?.length || 0)) 
-      .slice(0, 3); 
+; 
 
 
     const todaysEvents = searchFilteredEvents.filter(event => event.startDate >= today && event.startDate <= endOfToday);
@@ -365,25 +363,6 @@
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {trendingEvents.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-1 mb-6">
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-8 bg-gradient-to-b from-pink-500 to-rose-500 rounded-full"></div>
-                          <h3 className="text-2xl font-bold text-foreground">Trending Now</h3>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-1 gap-6">
-                        {trendingEvents.map((event) => (
-                          <TrendingEventCard
-                            key={`trending-${event.id}`}
-                            event={event}
-                            onCommentClick={(event) => setCommentModalEvent(event)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )}
                   {upcomingEvents.length > 0 && (
                     <div>
                       <div className="flex items-center gap-3 mb-6">
@@ -582,6 +561,7 @@
     currentUser: any
   }) {
     const [comments, setComments] = useState<CommentType[]>([])
+    const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
       const q = query(collection(db, "events", event.id, "comments"), orderBy("createdAt", "asc"))
@@ -601,7 +581,7 @@
     const images = event.images && event.images.length > 0 ? event.images : event.imageUrl ? [event.imageUrl] : [];
 
     return (
-      <motion.div layoutId={`card-container-${event.id}`} whileHover={{ y: -8 }} transition={{ duration: 0.2 }}>
+      <motion.div layoutId={`card-container-${event.id}`} transition={{ duration: 0.2 }}>
         <div 
           onClick={() => onCommentClick(event)}
           className="group relative rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col"
@@ -621,45 +601,63 @@
                 <p className="text-xs text-gray-500">{event.organizerEmail || "organizer@email.com"}</p>
               </div>
             </div>
-            <button className="text-gray-400 hover:text-gray-600 p-1">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="5" r="2" />
-                <circle cx="12" cy="12" r="2" />
-                <circle cx="12" cy="19" r="2" />
-              </svg>
-            </button>
           </div>
 
           <div className="px-4 pb-3">
-            <div className="relative w-full h-56 rounded-lg overflow-hidden grid grid-cols-3 gap-1">
-              {images[0] && (
-                <div className="col-span-1 row-span-2 relative overflow-hidden rounded-lg">
+            {images.length === 0 ? (
+              <div className="w-full h-56 rounded-lg bg-gray-200"></div>
+            ) : images.length === 1 ? (
+              <div className="relative w-full h-56 rounded-lg overflow-hidden">
+                <img src={images[0]} alt="Event main" className="w-full h-full object-cover" />
+              </div>
+            ) : images.length === 2 ? (
+              <div className="relative w-full h-56 rounded-lg overflow-hidden grid grid-cols-2 gap-1">
+                <img src={images[0]} alt="Event 1" className="w-full h-full object-cover" />
+                <img src={images[1]} alt="Event 2" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="relative w-full h-56 rounded-lg overflow-hidden grid grid-cols-3 grid-rows-2 gap-1">
+                {/* Main Image */}
+                <div className="col-span-2 row-span-2 relative overflow-hidden">
                   <img src={images[0]} alt="Event main" className="w-full h-full object-cover" />
                 </div>
-              )}
-              {images[1] && (
-                <div className="col-span-1 relative overflow-hidden rounded-lg">
-                  <img src={images[1]} alt="Event 2" className="w-full h-full object-cover" />
-                </div>
-              )}
-              {images[2] && (
-                <div className="col-span-1 relative overflow-hidden rounded-lg">
-                  <img src={images[2]} alt="Event 3" className="w-full h-full object-cover" />
-                </div>
-              )}
-              {images[3] && (
-                <div className="col-span-1 relative overflow-hidden rounded-lg">
-                  <img src={images[3]} alt="Event 4" className="w-full h-full object-cover" />
-                </div>
-              )}
-              {images.length === 0 && <div className="col-span-3 bg-gray-200 rounded-lg"></div>}
-            </div>
+                {/* Side Images */}
+                {images[1] && (
+                  <div className="col-span-1 row-span-1 relative overflow-hidden">
+                    <img src={images[1]} alt="Event 2" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                {images[2] && (
+                  <div className="col-span-1 row-span-1 relative overflow-hidden">
+                    <img src={images[2]} alt="Event 3" className="w-full h-full object-cover" />
+                    {images.length > 3 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">+{images.length - 3}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Title & Description */}
           <div className="px-4 pb-3">
-            <h3 className="text-base font-bold text-gray-900 line-clamp-1">{event.eventName || "Untitled Event"}</h3>
-            <p className="text-sm text-gray-600 line-clamp-2 mt-1">{event.description}</p>
+            <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{event.eventName || "Untitled Event"}</h3>
+            <p className={`text-sm text-gray-600 mt-1 transition-all duration-300 ${!isExpanded ? 'line-clamp-2' : ''}`}>
+              {event.description}
+            </p>
+            {event.description && event.description.length > 100 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(!isExpanded);
+                }}
+                className="text-xs font-semibold text-blue-600 hover:underline mt-1"
+              >
+                {isExpanded ? 'See less' : 'See more...'}
+              </button>
+            )}
           </div>
 
           {/* Event Timing / Registration Links */}
@@ -678,8 +676,13 @@
               ))}
             </div>
           ) : (
-            <div className="px-4 pb-3 text-xs text-gray-500">
-              Event ends {event.endDate && !isNaN(event.endDate.getTime()) ? format(event.endDate, "MMM do 'at' h:mm a") : "Soon"}
+            <div className="px-4 pb-3 text-xs text-gray-500 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <span className="text-sm font-bold text-gray-600">
+                {event.startDate && !isNaN(event.startDate.getTime()) ? format(event.startDate, "MMM dd, h:mm a") : "TBA"}
+                {' - '}
+                {event.endDate && !isNaN(event.endDate.getTime()) ? format(event.endDate, "h:mm a") : ""}
+              </span>
             </div>
           )}
 
@@ -731,51 +734,6 @@
       </motion.div>
     )
   }
-
-  function TrendingEventCard({ event, onCommentClick }: { event: EventType, onCommentClick: (event: EventType) => void }) {
-    const { user } = useAuth();
-    const hearts = event.hearts ?? [];
-    const liked = user && user.uid && hearts.includes(user.uid);
-
-    return (
-        <motion.div 
-            whileHover={{ y: -5 }} 
-            transition={{ duration: 0.2 }}
-            onClick={() => onCommentClick(event)} // eslint-disable-line
-            className="group relative rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col md:flex-row md:h-48"
-        >
-            {/* Image */}
-            <div className="w-full h-48 md:w-2/5 md:h-full relative flex-shrink-0">
-                <img
-                  src={((event as any).images && (event as any).images[0]) || event.imageUrl || 'src/assets/placeholder.jpg'}
-                  alt={event.eventName || "Event"}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:bg-gradient-to-r"></div>
-            </div>
-
-            {/* Content */}
-            <div className="flex flex-col p-5 flex-grow">
-                <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-2">{event.eventName}</h3>
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-grow">{event.description}</p>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground mt-auto">
-                    <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        <span>{format(event.startDate, "MMM dd, yyyy")}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5" />
-                        <span>{event.location}</span>
-                    </div>
-                    <div className={`flex items-center gap-1.5 font-semibold ${liked ? 'text-red-500' : ''}`}>
-                        <Heart className="h-3.5 w-3.5" />
-                        <span>{hearts.length} Likes</span>
-                    </div>
-                </div>
-            </div>
-        </motion.div>
-    );
-}
 
   const FilterCard = ({ label, imageUrl, isActive, onClick, className }: { label: string, imageUrl: string, isActive: boolean, onClick: () => void, className?: string }) => {
     return (

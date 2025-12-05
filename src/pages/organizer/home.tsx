@@ -34,7 +34,10 @@ const departmentTagColors: Record<string, string> = {
 }
 
 const getGreeting = () => {
-  const currentHour = new Date().getHours()
+  const options: Intl.DateTimeFormatOptions = { timeZone: 'Asia/Manila', hour: '2-digit', hour12: false };
+  const formatter = new Intl.DateTimeFormat('en-US', options);
+  const currentHour = parseInt(formatter.format(new Date()));
+
   if (currentHour < 12) {
     return "Good Morning"
   } else if (currentHour < 18) {
@@ -51,6 +54,7 @@ export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [currentDate, setCurrentDate] = useState(new Date())
   const [deleteConfirmEvent, setDeleteConfirmEvent] = useState<Event | null>(null)
+  const [phTime, setPhTime] = useState("")
   const [selectedDay, setSelectedDay] = useState<Date | null>(null)
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -185,10 +189,13 @@ export default function Home() {
 
             <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-8 mb-8 flex flex-col md:flex-row items-center justify-between">
               <div className="z-10 flex flex-col items-center text-center md:ml-24">
-                <h2 className="text-2xl sm:text-3xl font-bold text-black">
-                  {getGreeting()}, {organizerName || (user?.displayName ? user.displayName : "Organizer")}!
-                </h2>
-                <p className="text-black text-sm sm:text-base mt-2">
+                <div className="flex flex-col items-center">
+                  <h2 className="text-2xl sm:text-3xl font-bold text-black">
+                    {getGreeting()}, {organizerName || (user?.displayName ? user.displayName : "Organizer")}!
+                  </h2>
+                  
+                </div>
+                <p className="text-black text-sm sm:text-base mt-4">
                   How's your event planning today?
                   <br />
                   Let's make it a great one!

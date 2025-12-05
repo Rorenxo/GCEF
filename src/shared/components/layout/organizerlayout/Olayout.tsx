@@ -11,6 +11,7 @@ export default function OrganizerLayout() {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false)
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [phDateTime, setPhDateTime] = useState("")
   const profileDropdownRef = useRef<HTMLDivElement>(null)
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
@@ -35,6 +36,26 @@ export default function OrganizerLayout() {
       document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [profileDropdownRef])
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const options: Intl.DateTimeFormatOptions = {
+        timeZone: "Asia/Manila",
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      }
+      const formatter = new Intl.DateTimeFormat("en-US", options)
+      setPhDateTime(formatter.format(new Date()))
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -81,6 +102,9 @@ export default function OrganizerLayout() {
               <Menu className="h-6 w-6 text-gray-500" />
             </button>
             <div className="flex-1 hidden lg:block">
+              {phDateTime && (
+                <p className="text-sm font-semibold text-gray-700">{phDateTime}</p>
+              )}
             </div>
             <div className="flex items-center gap-4 ml-auto">
               <div className="relative flex items-center w-40 sm:w-64">
