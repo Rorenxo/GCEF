@@ -72,7 +72,7 @@
   export default function StudentFeed() {
     const [events, setEvents] = useState<EventType[]>([])
     const [loading, setLoading] = useState(true)
-    const { searchQuery } = useStudentLayoutContext();
+    const { searchQuery, selectedDepartment } = useStudentLayoutContext();
     const [activeFilter, setActiveFilter] = useState('All');
     const { user } = useAuth()
     const [commentModalEvent, setCommentModalEvent] = useState<EventType | null>(null)
@@ -255,8 +255,10 @@
         const eventCategory = getCategoryFromEventType(event.eventType);
         const categoryMatch = activeFilter === 'All' || eventCategory === activeFilter;
         const notCancelled = event.status !== "Canceled";
+        
+        const departmentMatch = selectedDepartment === 'All' || event.department === selectedDepartment;
 
-        return searchMatch && categoryMatch && notCancelled;
+        return searchMatch && categoryMatch && notCancelled && departmentMatch;
     }
     )
 
@@ -582,6 +584,7 @@
     currentUser: any
   }) {
     const [comments, setComments] = useState<CommentType[]>([])
+    const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
       const q = query(collection(db, "events", event.id, "comments"), orderBy("createdAt", "asc"))
@@ -601,7 +604,7 @@
     const images = event.images && event.images.length > 0 ? event.images : event.imageUrl ? [event.imageUrl] : [];
 
     return (
-      <motion.div layoutId={`card-container-${event.id}`} whileHover={{ y: -8 }} transition={{ duration: 0.2 }}>
+      <motion.div layoutId={`card-container-${event.id}`} transition={{ duration: 0.2 }}>
         <div 
           onClick={() => onCommentClick(event)}
           className="group relative rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col"
@@ -621,67 +624,89 @@
                 <p className="text-xs text-gray-500">{event.organizerEmail || "organizer@email.com"}</p>
               </div>
             </div>
-            <button className="text-gray-400 hover:text-gray-600 p-1">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="5" r="2" />
-                <circle cx="12" cy="12" r="2" />
-                <circle cx="12" cy="19" r="2" />
-              </svg>
-            </button>
           </div>
 
           <div className="px-4 pb-3">
-            <div className="relative w-full h-56 rounded-lg overflow-hidden grid grid-cols-3 gap-1">
-              {images[0] && (
-                <div className="col-span-1 row-span-2 relative overflow-hidden rounded-lg">
+            {images.length === 0 ? (
+              <div className="w-full h-56 rounded-lg bg-gray-200"></div>
+            ) : images.length === 1 ? (
+              <div className="relative w-full h-56 rounded-lg overflow-hidden">
+                <img src={images[0]} alt="Event main" className="w-full h-full object-cover" />
+              </div>
+            ) : images.length === 2 ? (
+              <div className="relative w-full h-56 rounded-lg overflow-hidden grid grid-cols-2 gap-1">
+                <img src={images[0]} alt="Event 1" className="w-full h-full object-cover" />
+                <img src={images[1]} alt="Event 2" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="relative w-full h-56 rounded-lg overflow-hidden grid grid-cols-3 grid-rows-2 gap-1">
+                {/* Main Image */}
+                <div className="col-span-2 row-span-2 relative overflow-hidden">
                   <img src={images[0]} alt="Event main" className="w-full h-full object-cover" />
                 </div>
-              )}
-              {images[1] && (
-                <div className="col-span-1 relative overflow-hidden rounded-lg">
-                  <img src={images[1]} alt="Event 2" className="w-full h-full object-cover" />
-                </div>
-              )}
-              {images[2] && (
-                <div className="col-span-1 relative overflow-hidden rounded-lg">
-                  <img src={images[2]} alt="Event 3" className="w-full h-full object-cover" />
-                </div>
-              )}
-              {images[3] && (
-                <div className="col-span-1 relative overflow-hidden rounded-lg">
-                  <img src={images[3]} alt="Event 4" className="w-full h-full object-cover" />
-                </div>
-              )}
-              {images.length === 0 && <div className="col-span-3 bg-gray-200 rounded-lg"></div>}
-            </div>
+                {/* Side Images */}
+                {images[1] && (
+                  <div className="col-span-1 row-span-1 relative overflow-hidden">
+                    <img src={images[1]} alt="Event 2" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                {images[2] && (
+                  <div className="col-span-1 row-span-1 relative overflow-hidden">
+                    <img src={images[2]} alt="Event 3" className="w-full h-full object-cover" />
+                    {images.length > 3 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">+{images.length - 3}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Title & Description */}
           <div className="px-4 pb-3">
             <h3 className="text-base font-bold text-gray-900 line-clamp-1">{event.eventName || "Untitled Event"}</h3>
-            <p className="text-sm text-gray-600 line-clamp-2 mt-1">{event.description}</p>
+            <p className={`text-sm text-gray-600 mt-1 transition-all duration-300 ${!isExpanded ? 'line-clamp-2' : ''}`}>
+              {event.description}
+            </p>
+            {event.description && event.description.length > 100 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(!isExpanded);
+                }}
+                className="text-xs font-semibold text-blue-600 hover:underline mt-1"
+              >
+                {isExpanded ? 'See less' : 'See more...'}
+              </button>
+            )}
           </div>
 
           {/* Event Timing / Registration Links */}
-          {event.registrationLinks && event.registrationLinks.length > 0 ? (
-            <div className="px-4 pb-3 flex flex-wrap gap-2">
-              {event.registrationLinks.map((link, idx) => (
-                <a 
-                  key={idx}
-                  href={link.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200 transition font-medium"
-                >
-                  {link.title}
-                </a>
-              ))}
+          <div className="px-4 pb-3 space-y-2">
+            {event.registrationLinks && event.registrationLinks.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {event.registrationLinks.map((link, idx) => (
+                  <a 
+                    key={idx}
+                    href={link.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200 transition font-medium"
+                  >
+                    {link.title || 'Register Here'}
+                  </a>
+                ))}
+              </div>
+            )}
+            <div className="px-4 pb-3 text-xs text-gray-500 space-y-1">
+              <div>
+                Starts: <span className="font-bold text-sm text-gray-600">{event.startDate && !isNaN(event.startDate.getTime()) ? format(event.startDate, "MMM d, h:mm a") : "N/A"}</span>
+              </div>
+              <div>Ends: <span className="font-bold text-sm text-gray-600">{event.endDate && !isNaN(event.endDate.getTime()) ? format(event.endDate, "MMM d, h:mm a") : "Soon"}</span></div>
             </div>
-          ) : (
-            <div className="px-4 pb-3 text-xs text-gray-500">
-              Event ends {event.endDate && !isNaN(event.endDate.getTime()) ? format(event.endDate, "MMM do 'at' h:mm a") : "Soon"}
-            </div>
-          )}
+          </div>
 
           {/* Engagement Stats */}
           <div className="px-4 py-2 flex items-center gap-4 text-sm text-gray-600">
@@ -739,7 +764,6 @@
 
     return (
         <motion.div 
-            whileHover={{ y: -5 }} 
             transition={{ duration: 0.2 }}
             onClick={() => onCommentClick(event)} // eslint-disable-line
             className="group relative rounded-2xl overflow-hidden bg-white shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col md:flex-row md:h-48"

@@ -19,9 +19,9 @@ const departmentColors: Record<string, string> = {
 
 export default function StudentCalendar() {
   const { events, loading } = useEvents();
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [isZoomed, setIsZoomed] = useState(false);
   const navigate = useNavigate();
@@ -114,7 +114,7 @@ export default function StudentCalendar() {
                       key={event.id}
                       onClick={() => handleEventClick(event)}
                       className={`w-full text-left p-1.5 rounded-md text-xs font-medium truncate transition-colors ${
-                        departmentColors[event.department] || departmentColors.ALL
+                        departmentColors[event.department as keyof typeof departmentColors] || departmentColors.ALL
                       }`}
                     >
                       {event.eventName}

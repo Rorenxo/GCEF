@@ -1,19 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import {
-  collection,
-  query,
-  orderBy,
-  where,
-  onSnapshot,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  getDoc,
-  Timestamp,
-} from "firebase/firestore"
+import {collection,query,orderBy,where,onSnapshot,addDoc,updateDoc,deleteDoc,doc,getDoc,Timestamp,} from "firebase/firestore"
 import { getAuth } from "firebase/auth"
 import { db } from "@/lib/firebase"
 import type { Event, EventFormData } from "@/types"
@@ -40,8 +28,11 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
             setError("User not authenticated for this scope.")
             return
           }
-          const adminDoc = await getDoc(doc(db, "admins", user.uid))
-          if (adminDoc.exists()) {
+          const adminDocRef = doc(db, "admins", user.uid)
+          const studentDocRef = doc(db, "students", user.uid)
+          const [adminDoc, studentDoc] = await Promise.all([getDoc(adminDocRef), getDoc(studentDocRef)])
+
+          if (adminDoc.exists() || studentDoc.exists()) {
             q = query(collection(db, "events"), orderBy("startDate", "desc"))
           } else {
             q = query(
@@ -51,7 +42,6 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
             )
           }
         }
-
         const unsubscribe = onSnapshot(
           q,
           (snapshot) => {
@@ -92,8 +82,6 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
       if (!user) throw new Error("User not authenticated")
 
       const now = Timestamp.now()
-
-      // Get organizer info if available
       let organizerName: string | undefined
       let organizerEmail: string | undefined
       try {
@@ -104,24 +92,23 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
           organizerEmail = orgDocSnap.data().email
         }
       } catch {
-        // If not an organizer, that's okay
       }
 
       const newEvent = await addDoc(collection(db, "events"), {
-        eventName: eventData.eventName,
+        eventName: eventData.eventName || null,
         startDate: Timestamp.fromDate(new Date(eventData.startDate)),
         endDate: Timestamp.fromDate(new Date(eventData.endDate)),
-        description: eventData.description,
-        location: eventData.location,
-        professor: eventData.professor,
-        department: eventData.department,
+        description: eventData.description || null,
+        location: eventData.location || null,
+        professor: eventData.professor || null,
+        department: eventData.department || null,
         eventType: eventData.eventType || "Conference",
         eventTypeCustom: eventData.eventTypeCustom || null,
         speakers: eventData.speakers || [],
         maxParticipants: eventData.maxParticipants || null,
         registrationLinks: eventData.registrationLinks || [],
         attendanceInfo: eventData.attendanceInfo || { persons: [], locations: [] },
-        imageUrls: imageUrls || [],
+        imageUrls: imageUrls ?? [],
         organizerName: organizerName || null,
         organizerEmail: organizerEmail || null,
         createdBy: user.uid,
@@ -129,16 +116,12 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
         updatedAt: now,
       })
 
-      // Send notifications about new event creation
       try {
         const { notifyEventCreation } = await import("@/lib/notificationService")
-        // Notify all students (you may want to filter by department later)
-        // For now, we'll just notify through the database structure
-        // Admin notifications are typically done server-side or via a scheduled function
+
         console.log("Event created:", newEvent.id)
       } catch (error) {
         console.error("Error sending event creation notification:", error)
-        // Don't throw - event was still created successfully
       }
     } catch (err: any) {
       throw new Error(err.message || "Failed to add event")
@@ -150,7 +133,7 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
       const eventRef = doc(db, "events", id)
       const updateData: any = {
         ...eventData,
-        updatedAt: Timestamp.now(),
+        updatedAt: Timestamp.now()
       }
 
       if (eventData.startDate) {
@@ -159,31 +142,29 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
       if (eventData.endDate) {
         updateData.endDate = Timestamp.fromDate(new Date(eventData.endDate))
       }
-      if (imageUrls !== undefined) {
-        updateData.imageUrls = imageUrls
+      if ('imageUrls' in updateData) {
+        updateData.imageUrls = imageUrls ?? []
       }
-      if (eventData.eventType !== undefined) {
-        updateData.eventType = eventData.eventType
+      if ('eventType' in updateData) {
+        updateData.eventType = eventData.eventType || "Conference"
       }
-      if (eventData.eventTypeCustom !== undefined) {
-        updateData.eventTypeCustom = eventData.eventTypeCustom
+      if ('eventTypeCustom' in updateData) {
+        updateData.eventTypeCustom = eventData.eventTypeCustom || null
       }
-      if (eventData.speakers !== undefined) {
-        updateData.speakers = eventData.speakers
+      if ('speakers' in updateData) {
+        updateData.speakers = eventData.speakers || []
       }
       if (eventData.maxParticipants !== undefined) {
-        updateData.maxParticipants = eventData.maxParticipants
+        updateData.maxParticipants = eventData.maxParticipants || null
       }
-      if (eventData.registrationLinks !== undefined) {
-        updateData.registrationLinks = eventData.registrationLinks
+      if ('registrationLinks' in updateData) {
+        updateData.registrationLinks = eventData.registrationLinks || []
       }
-      if (eventData.attendanceInfo !== undefined) {
-        updateData.attendanceInfo = eventData.attendanceInfo
+      if ('attendanceInfo' in updateData) {
+        updateData.attendanceInfo = eventData.attendanceInfo || { persons: [], locations: [] }
       }
-
+      
       await updateDoc(eventRef, updateData)
-
-      // Send notifications about event update
       try {
         const { notifyEventUpdate } = await import("@/lib/notificationService")
         const currentEvent = await getDoc(eventRef)
@@ -192,8 +173,6 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
           const changeDetails = Object.keys(updateData)
             .filter((k) => k !== "updatedAt")
             .join(", ")
-          
-          // Notify students who saved the event
           if (eventData.saves && eventData.saves.length > 0) {
             await notifyEventUpdate(
               eventData.saves,
@@ -206,7 +185,6 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
         }
       } catch (error) {
         console.error("Error sending event update notification:", error)
-        // Don't throw - event was still updated successfully
       }
     } catch (err: any) {
       throw new Error(err.message || "Failed to update event")

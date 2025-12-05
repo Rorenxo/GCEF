@@ -3,18 +3,32 @@
 import { useState, useRef, useEffect } from "react";
 import { Outlet, Link, useNavigate, useLocation, useOutletContext } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, User, Settings, LogOut, Search } from "lucide-react";
+import { Menu, User, Settings, LogOut, Search, ChevronDown, Users } from "lucide-react";
 import StudentSidebar from "@/shared/components/layout/studentLayout/StudentSidebar";
 import { NotificationCenter } from "@/shared/components/NotificationCenter";
 import { auth } from "@/lib/firebase";
 import useAuth from "@/shared/components/useStudentAuth";
+
+const departments = ["All", "CCS", "CEAS", "CAHS", "CHTM", "CBA"];
+
+const departmentColors: Record<string, string> = {
+  CCS: "bg-orange-100 text-orange-800",
+  CEAS: "bg-blue-100 text-blue-800",
+  CAHS: "bg-red-100 text-red-800",
+  CHTM: "bg-pink-100 text-pink-800",
+  CBA: "bg-yellow-100 text-yellow-800",
+  ALL: "bg-gray-100 text-gray-800",
+};
 
 export default function StudentLayout() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDepartment, setSelectedDepartment] = useState("All");
+  const [isDeptDropdownOpen, setDeptDropdownOpen] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const deptDropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -29,13 +43,16 @@ export default function StudentLayout() {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setShowProfileDropdown(false);
       }
+      if (deptDropdownRef.current && !deptDropdownRef.current.contains(event.target as Node)) {
+        setDeptDropdownOpen(false);
+      }
     }
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [profileDropdownRef]);
+  }, [profileDropdownRef, deptDropdownRef]);
 
   return (
     <div className="flex h-screen bg-white">
@@ -80,15 +97,55 @@ export default function StudentLayout() {
             </div>
             <div className="flex items-center gap-4 ml-auto">
               {location.pathname === '/student' && (
-                <div className="relative flex items-center w-40 sm:w-64">
-                  <Search className="absolute left-3 h-4 w-4 text-gray-400 pointer-events-none" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search..."
-                    className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-100 border border-gray-200 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-green-300 text-sm h-9"
-                  />
+                <div className="flex items-center gap-2">
+                  <div className="relative flex items-center w-40 sm:w-64">
+                    <Search className="absolute left-3 h-4 w-4 text-gray-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search events..."
+                      className="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-100 border border-gray-200 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-green-300 text-sm h-9"
+                    />
+                  </div>
+                  <div className="relative" ref={deptDropdownRef}>
+                    <button 
+                      onClick={() => setDeptDropdownOpen(prev => !prev)}
+                      className="flex items-center justify-center h-9 w-9 rounded-lg bg-gray-100 border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors
+                                 sm:w-auto sm:px-3 sm:justify-between sm:gap-2"
+                    >
+                      {/* Mobile view: Icon only */}
+                      <span className="sm:hidden">
+                        <Users className="h-4 w-4 text-gray-500" />
+                      </span>
+                      {/* Desktop view: Text + Chevron */}
+                      <span className="hidden sm:flex items-center gap-2">
+                        <span className={`px-2 py-0.5 rounded text-xs ${departmentColors[selectedDepartment]}`}>{selectedDepartment}</span>
+                        <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform ${isDeptDropdownOpen ? 'rotate-180' : ''}`} />
+                      </span>
+                    </button>
+                    <AnimatePresence>
+                      {isDeptDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="absolute right-0 mt-2 w-40 bg-white rounded-lg border border-gray-200 shadow-2xl z-20 overflow-hidden"
+                        >
+                          <div className="p-1">
+                            {departments.map(dept => (
+                              <button key={dept} onClick={() => {
+                                setSelectedDepartment(dept);
+                                setDeptDropdownOpen(false);
+                              }} className="flex items-center gap-3 w-full px-3 py-1.5 text-sm text-foreground hover:bg-gray-100 rounded-md transition-colors">
+                                {dept}
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               )}
               <NotificationCenter />
@@ -134,7 +191,7 @@ export default function StudentLayout() {
             </div>
           </div>
         </div>
-        <Outlet context={{ searchQuery, setSearchQuery }} />
+        <Outlet context={{ searchQuery, setSearchQuery, selectedDepartment, setSelectedDepartment }} />
       </main>
 
       <AnimatePresence>
@@ -173,5 +230,10 @@ export default function StudentLayout() {
 }
 
 export function useStudentLayoutContext() {
-  return useOutletContext<{ searchQuery: string; setSearchQuery: React.Dispatch<React.SetStateAction<string>> }>();
+  return useOutletContext<{ 
+    searchQuery: string; 
+    setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+    selectedDepartment: string;
+    setSelectedDepartment: React.Dispatch<React.SetStateAction<string>>;
+  }>();
 }
