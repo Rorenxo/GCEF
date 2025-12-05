@@ -178,13 +178,11 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen overflow-auto p-6">
+    <div className="flex h-screen overflow-auto p-1">
        <main className="flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <h1 className="text-3xl font-bold text-gray-900">
-              My Events
-            </h1>
+
             <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-8 mb-8 flex flex-col md:flex-row items-center justify-between">
               <div className="z-10 flex flex-col items-center text-center md:ml-24">
                 <h2 className="text-2xl sm:text-3xl font-bold text-black">

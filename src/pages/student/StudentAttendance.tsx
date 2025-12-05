@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { collectionGroup, query, where, getDocs, doc, getDoc, collection } from "firebase/firestore"
+import { collectionGroup, query, where, getDocs, doc, getDoc } from "firebase/firestore"
 import { db } from "@/lib/firebase"
 import { useAuth } from "@/hooks/useAuth"
 import { Button } from "@/shared/components/ui/button"
@@ -11,7 +11,7 @@ import { ArrowLeft, CheckCircle, UserCheck } from "lucide-react"
 import { format } from "date-fns"
 
 interface AttendanceRecord {
-  id: string
+  id: string  
   eventId: string
   eventName: string
   organizerName: string
@@ -27,17 +27,18 @@ export default function StudentAttendancePage() {
   useEffect(() => {
     const fetchAttendance = async () => {
       if (!user) {
+        console.warn("No user found, cannot fetch attendance")
         setLoading(false)
         return
       }
 
       try {
-        // 1. Get the student's profile to find their studentNumber
+        // 1. Get student number from student's profile
         const studentDocRef = doc(db, "students", user.uid);
         const studentDocSnap = await getDoc(studentDocRef);
 
         if (!studentDocSnap.exists()) {
-          console.error("Student profile not found!");
+          console.warn("Student profile not found for UID:", user.uid);
           setLoading(false);
           return;
         }
@@ -46,7 +47,7 @@ export default function StudentAttendancePage() {
         const studentNumber = studentData.studentNumber;
 
         if (!studentNumber) {
-          console.error("Student number not found in profile!");
+          console.warn("Student number not found in profile for UID:", user.uid);
           setLoading(false);
           return;
         }
@@ -56,22 +57,24 @@ export default function StudentAttendancePage() {
           where("studentNumber", "==", studentNumber)
         )
         const querySnapshot = await getDocs(attendanceQuery)
-        console.info("Attendance query returned docs:", querySnapshot.size, "for studentNumber:", studentNumber)
 
+        // 3. Process attendance records
         const records: AttendanceRecord[] = await Promise.all(
           querySnapshot.docs.map(async (docSnap) => {
             const data = docSnap.data()
-            
-            // 3. Fetch event name for each record
+
+            // Fetch event name for each record
             let eventName = "Unknown Event"
             try {
               const eventDocRef = doc(db, "events", data.eventId)
               const eventDocSnap = await getDoc(eventDocRef)
               if (eventDocSnap.exists()) {
                 eventName = eventDocSnap.data().eventName || "Untitled Event"
+              } else {
+                console.warn("⚠️ Event document not found for eventId:", data.eventId)
               }
             } catch (e) {
-              console.error("Error fetching event name: ", e)
+              console.error("❌ Error fetching event name:", e)
             }
 
             return {
@@ -88,7 +91,7 @@ export default function StudentAttendancePage() {
 
         setAttendance(records)
       } catch (error) {
-        console.error("Error fetching attendance:", error)
+        console.error("❌ Error fetching attendance:", error)
       } finally {
         setLoading(false)
       }

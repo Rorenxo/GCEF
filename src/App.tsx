@@ -46,7 +46,6 @@ import SavedEventsPage from "@/pages/student/SavedEvents"
 
 
 function App() {
-  // Set up event reminders
   useEventReminders()
 
   return (

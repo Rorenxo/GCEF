@@ -35,9 +35,6 @@ export interface Notification {
   expiresAt?: Timestamp
 }
 
-/**
- * Send notification to a user and save it to Firestore
- */
 export async function sendNotification(notification: Omit<Notification, "id" | "createdAt">) {
   try {
     const notificationsRef = collection(db, "notifications")
@@ -54,9 +51,6 @@ export async function sendNotification(notification: Omit<Notification, "id" | "
   }
 }
 
-/**
- * Send notification to multiple users (e.g., all admins, all students)
- */
 export async function sendBulkNotification(userIds: string[], notification: Omit<Notification, "id" | "createdAt" | "userId">) {
   try {
     const notificationsRef = collection(db, "notifications")
