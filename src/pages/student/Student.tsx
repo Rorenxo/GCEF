@@ -16,7 +16,7 @@ import ACC from '@/assets/ACC.jpg';
 import campusEvent from '@/assets/campusEvent.jpg';
 import gcSeminar from '@/assets/gcSeminar.jpg';
 import gcAct from '@/assets/gcAct.jpg';
-import socialGC from '@/assets/socialGC.jpg';
+import socialGc from '@/assets/socialGc.jpg';
 
 
   type EventType = {
@@ -351,7 +351,7 @@ import socialGC from '@/assets/socialGC.jpg';
 />
 <FilterCard
   label="Social"
-  imageUrl={socialGC}
+  imageUrl={socialGc}
   isActive={activeFilter === 'Social'}
   onClick={() => setActiveFilter('Social')}
   className="flex-shrink-0 w-28 sm:w-auto"
