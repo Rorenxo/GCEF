@@ -19,11 +19,11 @@ export default function NewPostForm({ user }: Props) {
 
     setSubmitting(true);
     try {
-      const dbInst = db();
+      const dbInst = db;
       let imageURL: string | null = null;
 
       if (file) {
-        const storageInst = storage();
+        const storageInst = storage;
         const storageRef = ref(storageInst, `posts/${user.uid}/${Date.now()}_${file.name}`);
         await uploadBytes(storageRef, file);
         imageURL = await getDownloadURL(storageRef);

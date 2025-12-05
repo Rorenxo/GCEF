@@ -112,7 +112,7 @@ export default function RegistrationConfirmModal({
                       value={registeredData.studentNumber}
                       size={160}
                       level="H"
-                      includeMargin={true}
+
                     />
                   </div>
                   <p className="font-mono text-sm font-bold text-zinc-800 mb-3">

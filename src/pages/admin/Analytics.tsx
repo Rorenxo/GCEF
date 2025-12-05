@@ -429,23 +429,26 @@ const topOrganizersPie = useMemo(() => {
                   <PieChart>
                     <Tooltip />
                     <Pie
-                      activeIndex={activePieIndex}
-                      activeShape={renderActiveShape}
-                      data={topOrganizersPie}
-                      dataKey="value"
-                      nameKey="name"
-                      innerRadius={62}
-                      outerRadius={90}
-                      paddingAngle={4}
-                      onMouseEnter={(_, index) => setActivePieIndex(index)}
-                    >
-                      {topOrganizersPie.map((entry, index) => (
-                        <Cell
-                          key={`slice-${index}`}
-                          fill={DEFAULT_COLORS[index % DEFAULT_COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
+  {...({
+    activeIndex: activePieIndex,
+    activeShape: renderActiveShape,
+    data: topOrganizersPie,
+    dataKey: "value",
+    nameKey: "name",
+    innerRadius: 62,
+    outerRadius: 90,
+    paddingAngle: 4,
+    onMouseEnter: (_, index) => setActivePieIndex(index),
+  } as any)}
+>
+  {topOrganizersPie.map((entry, index) => (
+    <Cell
+      key={`slice-${index}`}
+      fill={DEFAULT_COLORS[index % DEFAULT_COLORS.length]}
+    />
+  ))}
+</Pie>
+
                   </PieChart>
                 </ResponsiveContainer>
               </div>

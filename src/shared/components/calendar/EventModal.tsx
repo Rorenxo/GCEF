@@ -12,6 +12,7 @@ interface EventModalProps {
 }
 
 const departmentColors: Record<Department, string> = {
+  ALL: "#000000",
   CCS: "bg-orange-500",
   CEAS: "bg-blue-500",
   CAHS: "bg-red-500",
