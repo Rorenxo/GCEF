@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { checkUpcomingEvents, clearOldReminders } from "@/lib/eventReminderService"
+import { checkUpcomingEvents, clearOldReminders } from "@/lib/notificationService"
 
 /**
  * Hook to set up event reminder checking
