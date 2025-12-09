@@ -1,6 +1,6 @@
 import {
   collection,
-  addDoc,
+  addDoc, getDocs, writeBatch,
   query,
   where,
   orderBy,
@@ -154,9 +154,6 @@ export async function notifyAdminsAboutPendingOrganizer(
   }
 }
 
-/**
- * Notify about event creation
- */
 export async function notifyEventCreation(
   userIds: string[],
   eventName: string,
@@ -288,4 +285,60 @@ export async function notifyPersonnelAdded(
   } catch (error) {
     console.error("Error notifying about personnel addition:", error)
   }
+}
+
+export async function checkUpcomingEvents() {
+  try {
+    const now = new Date()
+    const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000)
+    const reminderWindow = new Date(now.getTime() + 61 * 60 * 1000) // 61 mins to avoid overlap
+
+    const eventsRef = collection(db, "events")
+    const q = query(
+      eventsRef,
+      where("startDate", ">=", oneHourFromNow),
+      where("startDate", "<", reminderWindow)
+    )
+
+    const querySnapshot = await getDocs(q)
+
+    for (const eventDoc of querySnapshot.docs) {
+      const event = eventDoc.data()
+      const userIdsToNotify = event.saves || []
+
+      if (userIdsToNotify.length > 0) {
+        // Check if a reminder was already sent recently for this event
+        const reminderQuery = query(
+          collection(db, "notifications"),
+          where("type", "==", "event_reminder"),
+          where("data.eventId", "==", eventDoc.id)
+        )
+        const existingReminders = await getDocs(reminderQuery)
+
+        if (existingReminders.empty) {
+          await notifyUpcomingEvent(
+            userIdsToNotify,
+            eventDoc.id,
+            event.eventName,
+            event.location || "TBA",
+            event.startDate.toDate()
+          )
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error checking for upcoming events:", error)
+  }
+}
+
+/**
+ * Deletes notifications that have expired.
+ */
+export async function clearOldReminders() {
+  const now = Timestamp.now()
+  const q = query(collection(db, "notifications"), where("expiresAt", "<=", now))
+  const snapshot = await getDocs(q)
+  const batch = writeBatch(db)
+  snapshot.docs.forEach(doc => batch.delete(doc.ref))
+  await batch.commit()
 }

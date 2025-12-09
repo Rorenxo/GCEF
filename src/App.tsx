@@ -43,6 +43,9 @@ import StudentSettings from "@/pages/student/StudentSettings"
 import StudentProfilePage from "@/pages/student/StudentProfilePage"
 import StudentAttendancePage from "@/pages/student/StudentAttendance"
 import SavedEventsPage from "@/pages/student/SavedEvents"
+import AllNotificationsPage from "@/pages/student/AllNotificationsPage"
+
+
 
 
 function App() {
@@ -115,6 +118,7 @@ function App() {
           <Route path="profile" element={<StudentProfilePage />} />
           <Route path="attendance" element={<StudentAttendancePage />} />
           <Route path="saved" element={<SavedEventsPage />} />
+          <Route path="notifications" element={<AllNotificationsPage />} />
         </Route>
 
         {/* ---------- CATCH ALL ---------- */}

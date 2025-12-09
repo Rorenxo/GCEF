@@ -25,7 +25,6 @@ export default function OrgEventPage() {
 
     setIsLoading(true)
     try { 
-      // Upload multiple images if provided
       let imageUrls: string[] = []
       if (Array.isArray(data.images) && data.images.length > 0) {
         const files = data.images.filter((f) => f instanceof File) as File[]
@@ -36,7 +35,6 @@ export default function OrgEventPage() {
           imageUrls = uploaded
         }
       } else if (data.image instanceof File) {
-        // fallback to single image
         const url = await uploadImage(data.image, { folder: "events", maxSizeMB: 5 })
         imageUrls = [url]
       }

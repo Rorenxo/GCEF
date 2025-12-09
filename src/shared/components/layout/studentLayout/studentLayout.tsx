@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Outlet, Link, useNavigate, useLocation, useOutletContext } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion"
 import { Menu, User, ListFilter, Settings, LogOut, Search, ChevronDown, Users } from "lucide-react";
 import StudentSidebar from "@/shared/components/layout/studentLayout/StudentSidebar";
 import { NotificationCenter } from "@/shared/components/NotificationCenter";

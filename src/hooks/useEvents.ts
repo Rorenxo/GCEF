@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import {collection,query,orderBy,where,onSnapshot,addDoc,updateDoc,deleteDoc,doc,getDoc,Timestamp,} from "firebase/firestore"
+import {collection,query,orderBy,where,onSnapshot,addDoc,updateDoc,deleteDoc,doc,getDoc,Timestamp, getDocs, writeBatch} from "firebase/firestore"
 import { getAuth } from "firebase/auth"
 import { db } from "@/lib/firebase"
 import type { Event, EventFormData } from "@/types"
@@ -116,10 +116,34 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
         updatedAt: now,
       })
 
+      // Notify all students and admins about the new event
       try {
-        const { notifyEventCreation } = await import("@/lib/notificationService")
+        const studentsQuery = query(collection(db, "students"))
+        const adminsQuery = query(collection(db, "admins"))
+        const [studentSnap, adminSnap] = await Promise.all([
+          getDocs(studentsQuery),
+          getDocs(adminsQuery),
+        ])
 
-        console.log("Event created:", newEvent.id)
+        const userIds = [
+          ...studentSnap.docs.map((d) => d.id),
+          ...adminSnap.docs.map((d) => d.id),
+        ]
+
+        const batch = writeBatch(db)
+        userIds.forEach(userId => {
+          const notifRef = doc(collection(db, "notifications"))
+          batch.set(notifRef, {
+            userId,
+            type: "event_created",
+            title: "New Event Added",
+            message: `A new event has been added: ${eventData.eventName || "Untitled Event"}`,
+            read: false,
+            createdAt: now,
+            data: { eventId: newEvent.id, eventName: eventData.eventName || "Untitled Event" },
+          })
+        })
+        await batch.commit()
       } catch (error) {
         console.error("Error sending event creation notification:", error)
       }
@@ -165,24 +189,38 @@ export function useEvents(options: { scope?: "all" | "user" } = {}) {
       }
       
       await updateDoc(eventRef, updateData)
+
+      // Notify all students and admins about the event update
       try {
-        const { notifyEventUpdate } = await import("@/lib/notificationService")
-        const currentEvent = await getDoc(eventRef)
-        if (currentEvent.exists()) {
-          const eventData = currentEvent.data()
-          const changeDetails = Object.keys(updateData)
-            .filter((k) => k !== "updatedAt")
-            .join(", ")
-          if (eventData.saves && eventData.saves.length > 0) {
-            await notifyEventUpdate(
-              eventData.saves,
-              currentEvent.id,
-              eventData.eventName,
-              eventData.organizerName || "Event Organizer",
-              `Updated: ${changeDetails}`
-            )
-          }
-        }
+        const eventSnap = await getDoc(eventRef)
+        const currentEventData = eventSnap.data()
+
+        const studentsQuery = query(collection(db, "students"))
+        const adminsQuery = query(collection(db, "admins"))
+        const [studentSnap, adminSnap] = await Promise.all([
+          getDocs(studentsQuery),
+          getDocs(adminsQuery),
+        ])
+
+        const userIds = [
+          ...studentSnap.docs.map((d) => d.id),
+          ...adminSnap.docs.map((d) => d.id),
+        ]
+
+        const batch = writeBatch(db)
+        userIds.forEach(userId => {
+          const notifRef = doc(collection(db, "notifications"))
+          batch.set(notifRef, {
+            userId,
+            type: "event_updated",
+            title: "Event Updated",
+            message: `The event "${currentEventData?.eventName || "Untitled Event"}" has been updated.`,
+            read: false,
+            createdAt: Timestamp.now(),
+            data: { eventId: id, eventName: currentEventData?.eventName || "Untitled Event" },
+          })
+        })
+        await batch.commit()
       } catch (error) {
         console.error("Error sending event update notification:", error)
       }
